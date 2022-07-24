@@ -9,4 +9,8 @@ document.querySelector("body > div:nth-child(2) > div.full-screen-container > di
 var evt = document.createEvent('HTMLEvents');
 evt.initEvent('input', false, true);
 document.querySelector("body > div:nth-child(2) > div.full-screen-container > div > div > div > div.product-edit__main > section:nth-child(6) > div > div:nth-child(1) > div.edit-input.edit-main > div > div > div.shopee-popover__ref > div > div > input").dispatchEvent(evt);
+
+document.querySelector("body > div:nth-child(2) > div.full-screen-container > div > div > div > div.shopee-fix-bottom-card.product-selected-fix > div.fix-container > div > div > div > div.shopee-popover__ref > button").click();
+
+document.querySelector("body > div:nth-child(2) > div.full-screen-container > div > div > div > div.shopee-fix-bottom-card.product-selected-fix > div.fix-container > div > div > div > div.shopee-popover__ref > button").click();
 })();

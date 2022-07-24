@@ -1,0 +1,8 @@
+[data]
+shopid = 821694597
+brand_id = 1800399
+price = 1000
+days_to_ship = 5
+weight = 0.8
+category_path = 篮球鞋
+sellable_stock = 50
