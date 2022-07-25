@@ -6,7 +6,7 @@ from urllib3 import *
 
 disable_warnings()
 
-path = "/Users/james/Pictures/测试样品/NO3/"
+path = "/Users/james/Pictures/测试样品/NO2/"
 
 """
 TODO
@@ -15,21 +15,59 @@ TODO
 文件夹迁移模块
 错误重试
 ✅ cookies 解析模块
+✅ 构建尺码库存
 cookies 有效性验证
 商品爬虫
-其他商品的ID
+其他商品的分类ID
+[wait] 两种鞋子尺码的归类
 """
 
 # 全局配置文件
 config = configparser.ConfigParser()
 config.read('/Users/james/Code/shopee/config.txt', encoding='utf-8')
+
 # 常用变量定义
 price = config.get('data', 'price')
 sellable_stock = config.getint('data', 'sellable_stock')
+# 定义尺码
+
+size_options = [
+    "BR34=EU36=22.5CM=US5.5",
+    "BR34.5=EU36.5=23CM=US6",
+    "BR35.5=EU37.5=23.5CM=US6.5",
+    "BR36=EU38=24CM=US7",
+    "BR36.5=EU38.5=24.5CM=US7.5",
+    "BR37=EU39=25CM=US8",
+    "BR38=EU40=25CM=US7",
+    "BR38.5=EU40.5=25.5cm=US7.5",
+    "BR39=EU41=26CM=US8",
+    "BR40=EU42=26.5CM=US8.5",
+    "BR40.5=EU42.5=27CM=US9",
+    "BR41=EU43=27.5CM=US9.5",
+    "BR42=EU44=28CM=US10",
+    "BR42.5=EU44.5=28.5CM=US10.5",
+    "BR43=EU45=29CM=US11"
+]
+
+# 构建尺码库存
+model_list = []
+for i in range(len(size_options)):
+    model_info = {
+                "mtsku_model_id": 0,
+                "seller_sku": "",
+                "stock_setting_list": [{"sellable_stock": sellable_stock}],
+                "normal_price": config.get('data', 'price'),
+                "is_default": False,
+                "tier_index": []
+        }
+    model_info['tier_index'].append(i)
+    model_list.append(model_info)
+
 # 商品类别映射
 mapper = {
     '篮球鞋': [100637,100726,101298]
 }
+
 # cookies 文件解析
 data_cookie = {}
 header_cookies = ""
@@ -41,10 +79,8 @@ for i in range(len(cookies)):
     data_cookie.update(temp)
     header_cookies += f"{data['name']}={data['value']}; "
 header_cookies = header_cookies.replace('"', '\\"')
-# 商品详情文件
-with open(path + 'detail.json', 'r') as content:
-    output = json.loads(content.read())
-    
+print('Cookies 解析完成')
+
 # 上传图片
 def upload(image_path):
     image_encode = open(image_path, 'rb').read().decode("latin-1",errors='ignore')
@@ -92,247 +128,144 @@ for file in files:
     if file.endswith(('.jpg', '.png', 'jpeg')):
         result = upload(path + file)
         image_linklist.append(result)
+print('图片上传完成')
 
+# 商品详情文件
+with open(path + 'detail.json', 'r') as content:
+    detail = json.loads(content.read())
+# 构造数据请求    
 data = {
-    "description": output['description'],
+    "description": detail['description'],
     "tier_variation": [
         {
             "images": [
                 
             ],
             "name": "size",
-            "options": [
-                "BR34=EU36=22.5CM=US5.5",
-                "BR34.5=EU36.5=23CM=US6",
-                "BR35.5=EU37.5=23.5CM=US6.5",
-                "BR36=EU38=24CM=US7",
-                "BR36.5=EU38.5=24.5CM=US7.5",
-                "BR37=EU39=25CM=US8",
-                "BR38=EU40=25CM=US7",
-                "BR38.5=EU40.5=25.5cm=US7.5",
-                "BR39=EU41=26CM=US8",
-                "BR40=EU42=26.5CM=US8.5",
-                "BR40.5=EU42.5=27CM=US9",
-                "BR41=EU43=27.5CM=US9.5",
-                "BR42=EU44=28CM=US10",
-                "BR42.5=EU44.5=28.5CM=US10.5",
-                "BR43=EU45=29CM=US11"
-            ]
+            "options": size_options
         }
     ],
-    "video_list": [
-        
-    ],
+    "video_list": [],
     "model_list": [
         {
-            "mtsku_model_id": 0,
+            'mtsku_model_id': 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                0
-            ]
+            "tier_index": [0]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                1
-            ]
+            "tier_index": [1]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                2
-            ]
+            "tier_index": [2]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                3
-            ]
+            "tier_index": [3]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                4
-            ]
+            "tier_index": [4]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                5
-            ]
+            "tier_index": [5]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                6
-            ]
+            "tier_index": [6]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                7
-            ]
+            "tier_index": [7]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                8
-            ]
+            "tier_index": [8]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                9
-            ]
+            "tier_index": [9]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                10
-            ]
+            "tier_index": [10]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                11
-            ]
+            "tier_index": [11]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                12
-            ]
+            "tier_index": [12]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                13
-            ]
+            "tier_index": [13]
         },
         {
             "mtsku_model_id": 0,
             "seller_sku": "",
-            "stock_setting_list": [
-                {
-                    "sellable_stock": sellable_stock
-                }
-            ],
+            "stock_setting_list": [{"sellable_stock": sellable_stock}],
             "normal_price": price,
             "is_default": False,
-            "tier_index": [
-                14
-            ]
+            "tier_index": [14]
         }
     ],
     "condition": 1,
@@ -341,7 +274,6 @@ data = {
     "ds_cat_rcmd_id": "",
     "description_type": "normal",
     "weight": config.get('data', 'weight'),
-    "ds_attr_rcmd_id": "15cd68dc-e2b5-4a7c-86fe-618ab2a6ee75|a|EN",
     "brand_id": config.getint('data', 'brand_id'),
     "days_to_ship": config.getint('data', 'days_to_ship'),
     "size_chart": "",
@@ -354,7 +286,7 @@ data = {
     "dimension": {},
     "images": image_linklist,
     "mtsku_item_id": 0,
-    "name": output['name']
+    "name": detail['name']
 }
 
 # 构造请求发布商品
@@ -371,5 +303,5 @@ response = requests.post(
     verify=False
 )
 
-print("✅ 上架成功") if(json.loads(response.text)['code'] == 0) else print("失败")
+print("上架成功 ✅") if(json.loads(response.text)['code'] == 0) else print("失败")
 #print(json.loads(response.text))
