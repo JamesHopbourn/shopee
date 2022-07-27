@@ -5,7 +5,6 @@ import sys
 import json
 import xlrd
 import time
-import random
 import requests
 from urllib3 import *
 disable_warnings()
@@ -65,7 +64,7 @@ def get_image_name(directory_name):
 
 # 上传商品图片
 def get_image_hash(image_path):
-	image_encode = open(image_path, 'rb').read().decode("latin-1",errors='ignore')
+	image_encode = open(image_path, 'rb').read().decode('latin-1')
 	request = requests.post("https://seller.shopee.cn/api/v3/general/upload_image/",
 		params={
 			"SPC_CDS": "d05d282f-3101-4864-b375-66621f6584b4",
@@ -168,7 +167,7 @@ def brand_id_mapper(brand_name):
 	}
 	return brand_id_data[brand_name.lower()]
 
-# 根据鞋码的数量重复生成数据
+# 根据鞋码数量重复生成数据
 def generate_repeat_data(size_options, sellable_stock, price):
 	model_list = []
 	for i in range(len(size_options)):
@@ -264,10 +263,7 @@ if __name__=="__main__":
 			for image in get_image_name(excel_data[excel_item_index('文件夹名')].value):
 				image_linklist.append(get_image_hash(image))
 			print(f"上传图片数量：{len(image_linklist)}")
-			"""
-			重复单元构造，库存，价格
-			返回的参数：尺码列表，库存金额信息
-			"""
+			# 获取价格和库存信息
 			excel_price = excel_data[excel_item_index('价格')].value
 			excel_sellable_stock = int(excel_data[excel_item_index('库存')].value)
 			# 从 Excel 读取性别信息，返回适配的尺码信息
