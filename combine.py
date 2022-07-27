@@ -11,7 +11,7 @@ from urllib3 import *
 disable_warnings()
 
 # cookies 文件解析
-def get_cookies():
+def parse_cookies():
 	data_cookie = {}
 	header_cookies = ""
 	with open('cookies.txt', 'r') as content:
@@ -105,15 +105,6 @@ def gender_option_mapper(gender_value):
 	
 # 性别尺码信息 男款 女款 情侣款
 def gender_size_list(excel_gender):
-	woman = [
-		"BR34=EU36=22.5CM=US5.5",
-		"BR34.5=EU36.5=23CM=US6",
-		"BR35.5=EU37=23.5CM=US6.5",
-		"BR36=EU38=24CM=US7",
-		"BR36.5=EU38.5=24.5CM=US7.5",
-		"BR37=EU39=25CM=US8"
-	]
-	
 	man = [
 		"BR38=EU40=25CM=US7",
 		"BR38.5=EU40.5=25.5cm=US7.5",
@@ -126,15 +117,22 @@ def gender_size_list(excel_gender):
 		"BR43=EU45=29CM=US11",
 		"BR44=EUR46=29.5CM=US11.5"
 	]
-	
-	universal = woman + man
+
+	woman = [
+		"BR34=EU36=22.5CM=US5.5",
+		"BR34.5=EU36.5=23CM=US6",
+		"BR35.5=EU37=23.5CM=US6.5",
+		"BR36=EU38=24CM=US7",
+		"BR36.5=EU38.5=24.5CM=US7.5",
+		"BR37=EU39=25CM=US8"
+	]
 	
 	gender_mapper = {
-		"女": woman,
 		"男": man,
-		"情侣": universal
+		"女": woman,
+		"情侣": woman + man
 	}
-	return gender_mapper[f"{excel_gender}"]
+	return gender_mapper[excel_gender]
 
 # 商品类别映射函数
 def catagory_mapper(catagory_value):
@@ -153,38 +151,31 @@ def catagory_mapper(catagory_value):
 # 鞋子品牌映射函数
 def brand_id_mapper(brand_name):
 	brand_id_data = {
-		"Air Jordan": 1800399,
-		"Adidas": 1800379,
-		"NoBrand": 0,
-		"NB": 1802060,
-		"Puma": 2240153
+		"air jordan": 1800399,
+		"adidas": 1800379,
+		"nobrand": 0,
+		"nb": 1802060,
+		"puma": 2240153
 	}
-	return brand_id_data[brand_name]
+	return brand_id_data[brand_name.lower()]
 
-# 根据鞋子码的数量重复生成数据
-def generate_repeat_data(size_optionsm, sellable_stock, price):
+# 根据鞋码的数量重复生成数据
+def generate_repeat_data(size_options, sellable_stock, price):
 	model_list = []
 	for i in range(len(size_options)):
 		model_info = {
-					"mtsku_model_id": 0,
-					"seller_sku": "",
-					"stock_setting_list": [{"sellable_stock": sellable_stock}],
-					"normal_price": f"{price}",
-					"is_default": False,
-					"tier_index": []
-			}
+			"mtsku_model_id": 0,
+			"seller_sku": "",
+			"stock_setting_list": [{"sellable_stock": sellable_stock}],
+			"normal_price": f"{price}",
+			"is_default": False,
+			"tier_index": []
+		}
 		model_info['tier_index'].append(i)
 		model_list.append(model_info)
 	return model_list
 
 def generate_request_data(excel_data, size_options, model_list, image_linklist):
-	"""
-	三个参数
-	1. config.get 类型从Excel读取
-	2. size_options 构造
-	3. model_list 构造
-	4. image_linklist 构造
-	"""
 	request_data = {
 		"description": excel_data[excel_item_index('商品描述')].value,
 		"tier_variation": [
@@ -234,45 +225,39 @@ def send_request(post_data):
 	)
 	status = json.loads(response.text)
 	if (status['code'] == -2) and ('mtsku.CreateMtskuRequest.Name' in status['message']):
-		print('商品名称有误，请修改后重试\n')
-		return
+		print("商品名称有误，请修改后重试")
 	else:
 		print("上架成功 ✅") if(status['code'] == 0) else print("失败")
 	print()
 	
 def countdown_timer(t):
 	print(f"随机暂停时间：{t}秒")
-	while t:
-			mins, secs = divmod(t, 60)
-#			timer = '暂停倒计时：{:02d}:{:02d}'.format(mins, secs)
-#			print(timer, end="\r")
-			time.sleep(1)
-			t -= 1
+	time.sleep(t)
+	return
 	
 # 函数入口定义
 if __name__=="__main__":
-		data_cookie = get_cookies()[0]
-		header_cookies = get_cookies()[1]
-		
+		data_cookie = parse_cookies()[0]
+		header_cookies = parse_cookies()[1]
 		excel_sheet = read_excel('商品.xls')
 		# 循环处理所有的产品
 		for i in range(len(excel_sheet)):
 			excel_data = excel_sheet[i]
 			# 如果标记为上传完成的产品就跳过
-			if(excel_sheet[i][-1].value == '完成'):
+			if(excel_data[excel_item_index('上架情况')].value == '完成'):
 				continue
 			# 随机数的暂停时间
-#			countdown_timer(random.randint(1,10))
-			# 定义数组，存放图片 uniqeID
+			countdown_timer(random.randint(1,10))
+			# 定义数组，存放图片 ID
 			image_linklist = []
-			for image in get_image_name(excel_data[1].value):
+			for image in get_image_name(excel_data[excel_item_index('文件夹名')].value):
 				image_linklist.append(get_image_hash(image))
 			print(f"上传图片数量：{len(image_linklist)}")
 			"""
 			重复单元构造，库存，价格
 			返回的参数：尺码列表，库存金额信息
 			"""
-			excel_price = int(excel_data[excel_item_index('价格')].value)
+			excel_price = excel_data[excel_item_index('价格')].value
 			excel_sellable_stock = int(excel_data[excel_item_index('库存')].value)
 			# 从 Excel 读取性别信息，返回适配的尺码信息
 			gender_index = excel_item_index('性别')
