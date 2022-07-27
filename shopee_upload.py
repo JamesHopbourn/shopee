@@ -48,7 +48,7 @@ def get_shopID():
 def read_excel(excel_filename):
 	result = []
 	table = xlrd.open_workbook(excel_filename)
-	sheet = table.sheet_by_name(table.sheet_names()[0])
+	sheet = table.sheet_by_index(0)
 	for i in range(1, sheet.nrows):
 		result.append(sheet[i])
 	return result
@@ -57,7 +57,7 @@ def read_excel(excel_filename):
 def excel_item_index(item_name):
 	header = []
 	table = xlrd.open_workbook(get_file_path('商品.xls'))
-	sheet = table.sheet_by_name(table.sheet_names()[0])
+	sheet = table.sheet_by_index(0)
 	for key in sheet[0]: header.append(key.value)
 	return header.index(item_name)
 
@@ -120,7 +120,7 @@ def gender_option_mapper(gender_value):
 	return gender_option_data[gender_value]
 	
 # 性别尺码信息 男款 女款 情侣款
-def gender_size_list(excel_gender):
+def shose_size_mapper(excel_gender):
 	man = [
 		"BR38=EU40=25CM=US7",
 		"BR38.5=EU40.5=25.5cm=US7.5",
@@ -277,7 +277,7 @@ if __name__=="__main__":
 			# 从 Excel 读取性别信息，返回适配的尺码信息
 			gender_index = excel_item_index('性别')
 			gender_value = excel_data[gender_index].value
-			size_options = gender_size_list(gender_value)
+			size_options = shose_size_mapper(gender_value)
 			# 根据尺码信息的数量构造库存价格对应信息
 			model_list = generate_repeat_data(size_options, excel_sellable_stock, excel_price)
 			# 根据上面的参数构造整体的数据包
