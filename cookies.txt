@@ -1,7 +1,7 @@
 [
 {
     "domain": ".shopee.cn",
-    "expirationDate": 1658817738,
+    "expirationDate": 1659424290.492931,
     "hostOnly": false,
     "httpOnly": false,
     "name": "CNSC_SSO",
@@ -10,7 +10,7 @@
     "secure": true,
     "session": false,
     "storeId": "0",
-    "value": "\"jcsu3IcSZx/7zAGt1uTxuP2ZRsr2p7Sk2zmalEwtcWndAH2ypjOEhZ6JSLhrO91p\"",
+    "value": "\"1ELepqUwZW2zcZz0NnQhkXyH3PYqOrMvDWxksH9VZ1EwiTROjE/0406+uBGd83js\"",
     "id": 1
 },
 {
@@ -29,7 +29,7 @@
 },
 {
     "domain": ".shopee.cn",
-    "expirationDate": 1658817738,
+    "expirationDate": 1659424290.492903,
     "hostOnly": false,
     "httpOnly": true,
     "name": "SPC_CNSC_TK",
@@ -38,12 +38,12 @@
     "secure": true,
     "session": false,
     "storeId": "0",
-    "value": "eede1fca072d11edb1616ecf936a5c2b",
+    "value": "2c4062420cb211edb29096a4f1819780",
     "id": 3
 },
 {
     "domain": ".shopee.cn",
-    "expirationDate": 1658817738,
+    "expirationDate": 1659424290.492941,
     "hostOnly": false,
     "httpOnly": true,
     "name": "SPC_CNSC_UD",
@@ -56,6 +56,32 @@
     "id": 4
 },
 {
+    "domain": ".shopee.cn",
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "SPC_F",
+    "path": "/",
+    "sameSite": "unspecified",
+    "secure": true,
+    "session": true,
+    "storeId": "0",
+    "value": "EzY53AmH4KBf0OqWcuC6QWRrmIAmU1M9",
+    "id": 5
+},
+{
+    "domain": ".shopee.cn",
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "UYOMAPJWEMDGJ",
+    "path": "/",
+    "sameSite": "unspecified",
+    "secure": true,
+    "session": true,
+    "storeId": "0",
+    "value": "",
+    "id": 6
+},
+{
     "domain": "seller.shopee.cn",
     "hostOnly": true,
     "httpOnly": false,
@@ -66,7 +92,7 @@
     "session": true,
     "storeId": "0",
     "value": "c97622d9-c3de-4324-ded7-28fbf9d54818",
-    "id": 5
+    "id": 7
 },
 {
     "domain": "seller.shopee.cn",
@@ -80,7 +106,7 @@
     "session": false,
     "storeId": "0",
     "value": "zh-CN",
-    "id": 6
+    "id": 8
 },
 {
     "domain": "seller.shopee.cn",
@@ -92,7 +118,7 @@
     "secure": false,
     "session": true,
     "storeId": "0",
-    "value": "7706c842-9602-43a0-a258-3a935a6be6e2",
-    "id": 7
+    "value": "400e9a6b-3172-4a06-bf1b-7bc9cca51bee",
+    "id": 9
 }
 ]

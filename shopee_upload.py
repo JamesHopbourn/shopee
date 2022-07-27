@@ -9,11 +9,19 @@ import requests
 from urllib3 import *
 disable_warnings()
 
+# 获取文件绝对路径
+def get_file_path(filename):
+	if getattr(sys, 'frozen', False):
+		application_path = os.path.dirname(os.path.realpath(sys.executable))
+	elif __file__:
+		application_path = os.path.dirname(__file__)
+	return os.path.join(application_path, filename)
+
 # cookies 文件解析
 def parse_cookies():
 	data_cookie = {}
 	header_cookies = ""
-	with open('cookies.txt', 'r') as content:
+	with open(get_file_path('cookies.txt'), 'r') as content:
 		cookies = json.loads(content.read())
 	for i in range(len(cookies)):
 		data = json.loads(json.dumps(cookies[i]))
@@ -48,7 +56,7 @@ def read_excel(excel_filename):
 # 表格元素定位
 def excel_item_index(item_name):
 	header = []
-	table = xlrd.open_workbook('商品.xls')
+	table = xlrd.open_workbook(get_file_path('商品.xls'))
 	sheet = table.sheet_by_name(table.sheet_names()[0])
 	for key in sheet[0]: header.append(key.value)
 	return header.index(item_name)
@@ -248,7 +256,7 @@ if __name__=="__main__":
 		data_cookie = parse_cookies()[0]
 		header_cookies = parse_cookies()[1]
 		shopID = get_shopID()
-		excel_sheet = read_excel('商品.xls')
+		excel_sheet = read_excel(get_file_path('商品.xls'))
 		# 循环处理所有的产品
 		for i in range(len(excel_sheet)):
 			excel_data = excel_sheet[i]
