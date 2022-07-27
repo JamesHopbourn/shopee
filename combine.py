@@ -24,6 +24,19 @@ def parse_cookies():
 		header_cookies = header_cookies.replace('"', '\\"')
 	return data_cookie, header_cookies
 
+# API 通过 cookies 获取 shopID
+def get_shopID():
+	account_info = requests.get("https://seller.shopee.cn/api/cnsc/selleraccount/get_session/",
+		cookies=data_cookie,
+		auth=(),
+		verify=False
+	)
+	status = json.loads(account_info.text)
+	if (('errcode' in status) and (status['errcode'] == 1)):
+		print('cookies 失效，请重置 cookies.txt 文件')
+		sys.exit()
+	return status['sub_account_info']['current_shop_id']
+
 # 读取表格内容
 def read_excel(excel_filename):
 	result = []
@@ -57,7 +70,7 @@ def get_image_hash(image_path):
 		params={
 			"SPC_CDS": "d05d282f-3101-4864-b375-66621f6584b4",
 			"SPC_CDS_VER": "2",
-			"cnsc_shop_id": int(excel_data[excel_item_index('店铺ID')].value),
+			"cnsc_shop_id": shopID,
 		},
 		data=f"""------WebKitFormBoundaryJBDkf5fKShesvHzh
 Content-Disposition: form-data; name="file"; filename="blob"
@@ -88,10 +101,6 @@ Content-Type: image/jpeg
 		verify=False
 	)
 	# 返回图片的 resource_id 列表
-	status = json.loads(request.text)
-	if ('errcode' in status) and (status['message'] == 'token not found'):
-		print('cookies 失效，请重置 cookies.txt 文件')
-		sys.exit()
 	return json.loads(request.text)['data']['resource_id']
 
 # 性别选项映射文件; 直接作用于 data
@@ -214,7 +223,7 @@ def send_request(post_data):
 	response = requests.post(
 		url="https://seller.shopee.cn/api/v3/mtsku/create_mtsku/",
 		params={
-			"cnsc_shop_id": int(excel_data[excel_item_index('店铺ID')].value),
+			"cnsc_shop_id": shopID,
 		},
 		headers={
 			"Cookie": f"{header_cookies}",
@@ -239,6 +248,7 @@ def countdown_timer(t):
 if __name__=="__main__":
 		data_cookie = parse_cookies()[0]
 		header_cookies = parse_cookies()[1]
+		shopID = get_shopID()
 		excel_sheet = read_excel('商品.xls')
 		# 循环处理所有的产品
 		for i in range(len(excel_sheet)):
@@ -247,7 +257,8 @@ if __name__=="__main__":
 			if(excel_data[excel_item_index('上架情况')].value == '完成'):
 				continue
 			# 随机数的暂停时间
-			countdown_timer(random.randint(1,10))
+			wait_time = int(excel_data[excel_item_index('暂停时间')].value)
+			countdown_timer(wait_time)
 			# 定义数组，存放图片 ID
 			image_linklist = []
 			for image in get_image_name(excel_data[excel_item_index('文件夹名')].value):
