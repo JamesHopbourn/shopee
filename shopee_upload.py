@@ -6,6 +6,7 @@ import json
 import xlrd
 import time
 import requests
+from xlutils.copy import copy
 from urllib3 import *
 disable_warnings()
 
@@ -16,6 +17,16 @@ def get_file_path(filename):
 	elif __file__:
 		application_path = os.path.dirname(__file__)
 	return os.path.join(application_path, filename)
+
+# Excel 文件夹重名检测
+def excel_duplicates_check(data):
+	dir_names = []
+	for item in data: dir_names.append(item[0].value)
+	if len(dir_names) != len(set(dir_names)):
+		print('Excel 中文件夹重名，请检查后重试')
+		print('敲击回车退出程序')
+		input()
+		sys.exit()
 
 # cookies 文件解析
 def parse_cookies():
@@ -43,6 +54,12 @@ def get_shopID():
 		print('cookies 失效，请重置 cookies.txt 文件')
 		sys.exit()
 	return status['sub_account_info']['current_shop_id']
+
+# 模拟人工随机时间暂停
+def countdown_timer(t):
+	print(f"随机暂停时间：{t}秒")
+	time.sleep(t)
+	return
 
 # 读取表格内容
 def read_excel(excel_filename):
@@ -242,24 +259,34 @@ def send_request(post_data):
 	status = json.loads(response.text)
 	if (status['code'] == -2) and ('mtsku.CreateMtskuRequest.Name' in status['message']):
 		print("商品名称有误，请修改后重试")
+	elif (status['code'] == 100010003 and ('mtsku title or description language is illegal ' in status['message'])):
+		print('商品名称或者描述有误')
 	else:
 		print("上架成功 ✅") if(status['code'] == 0) else print("失败")
 	print()
-	
-def countdown_timer(t):
-	print(f"随机暂停时间：{t}秒")
-	time.sleep(t)
-	return
+	return status['code']
+
+def excel_launched_modify(launch_status):
+	table = xlrd.open_workbook(get_file_path('商品.xls'))
+	workbook = copy(table)
+	sh1 = workbook.get_sheet(0)
+	for i in range(len(launch_status)):
+		# 产品序号实际是从0开始 此处需要加一
+		sh1.write(launch_status[i]+1, excel_item_index('上架情况'), '完成')
+	workbook.save('商品.xls')
 	
 # 函数入口定义
 if __name__=="__main__":
+		launch_status_array = []
 		data_cookie = parse_cookies()[0]
 		header_cookies = parse_cookies()[1]
 		shopID = get_shopID()
 		excel_sheet = read_excel(get_file_path('商品.xls'))
+		# Excel 文件夹重名检测
+		excel_duplicates_check(excel_sheet)
 		# 循环处理所有的产品
-		for i in range(len(excel_sheet)):
-			excel_data = excel_sheet[i]
+		for index in range(len(excel_sheet)):
+			excel_data = excel_sheet[index]
 			# 如果标记为上传完成的产品就跳过
 			if(excel_data[excel_item_index('上架情况')].value == '完成'):
 				continue
@@ -282,5 +309,11 @@ if __name__=="__main__":
 			model_list = generate_repeat_data(size_options, excel_sellable_stock, excel_price)
 			# 根据上面的参数构造整体的数据包
 			post_data = generate_request_data(excel_data, size_options, model_list, image_linklist)
-			send_request(post_data)
+			# 发送数据包上架商品返回状态码
+			launch_status_code = send_request(post_data)
+			# 根据状态码的情况决定是否追加
+			if (launch_status_code == 0):
+				launch_status_array.append(index)
+			# 修改 Excel 产品上架情况单元格值
+		excel_launched_modify(launch_status_array)
 		print("\a自动上架完成")
