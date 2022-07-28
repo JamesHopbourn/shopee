@@ -290,6 +290,7 @@ if __name__=="__main__":
 			# 如果标记为上传完成的产品就跳过
 			if(excel_data[excel_item_index('上架情况')].value == '完成'):
 				continue
+			print(f"开始上架第 {index+1} 个产品")
 			# 随机数的暂停时间
 			wait_time = int(excel_data[excel_item_index('暂停时间')].value)
 			countdown_timer(wait_time)
@@ -317,3 +318,5 @@ if __name__=="__main__":
 			# 修改 Excel 产品上架情况单元格值
 		excel_launched_modify(launch_status_array)
 		print("\a自动上架完成")
+		print("敲击回车退出程序")
+		input()
