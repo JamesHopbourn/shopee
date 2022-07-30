@@ -19,9 +19,9 @@ javascript: (function() {
         }
     }
 
-    function isJsonString(str) {
+    function isJsonString(data) {
         try {
-            JSON.parse(str);
+            JSON.parse(data);
         } catch (e) {
             return false;
         }
