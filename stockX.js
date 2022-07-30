@@ -30,11 +30,9 @@ javascript: (function() {
 
     var data = document.getElementsByTagName("script");
     for (var i = 0; i < data.length; i++) {
-        if (isJsonString(data[i].innerText) && JSON.parse(data[i].innerText).hasOwnProperty('name')) {
-            if (JSON.parse(data[i].innerText)['name'].indexOf('StockX') == -1) {
-                product_id = document.getElementsByClassName('chakra-text css-1fo8xgy')[0].textContent;
-                copyToClipboard(`${JSON.parse(data[i].innerText)['name']} ${product_id}`.replace("'", ''));
-            }
+        if (isJsonString(data[i].innerText) && JSON.parse(data[i].innerText).hasOwnProperty('name') && JSON.parse(data[i].innerText)['name'].indexOf('StockX') == -1) {
+            product_id = document.getElementsByClassName('chakra-text css-1fo8xgy')[0].textContent;
+            copyToClipboard(`${JSON.parse(data[i].innerText)['name']} ${product_id}`.replace("'", ''));
         }
     }
 })();
