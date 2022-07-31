@@ -279,13 +279,11 @@ def send_request(post_data):
 		network_status = 1
 		pass	
 
-def excel_launched_modify(launch_status):
-	table = xlrd.open_workbook(get_file_path('商品.xls'))
-	workbook = copy(table)
-	sh1 = workbook.get_sheet(0)
-	for i in range(len(launch_status)):
-		# 产品序号实际是从0开始 此处需要加一
-		sh1.write(launch_status[i]+1, excel_item_index('上架情况'), '完成')
+def excel_launched_modify(status):
+	item_index = excel_item_index('上架情况')
+	workbook = copy(xlrd.open_workbook(get_file_path('商品.xls')))
+	for i in range(len(status)):
+		workbook.get_sheet(0).write(status[i]+1, item_index, '完成')
 	workbook.save('商品.xls')
 	
 # 函数入口定义
