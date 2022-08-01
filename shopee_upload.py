@@ -36,8 +36,7 @@ def parse_cookies():
 		cookies = json.loads(content.read())
 	for i in range(len(cookies)):
 		data = json.loads(json.dumps(cookies[i]))
-		temp = {data['name']: data['value']}
-		data_cookie.update(temp)
+		data_cookie.update({data['name']: data['value']})
 		header_cookies += f"{data['name']}={data['value']}; "
 		header_cookies = header_cookies.replace('"', '\\"')
 	return data_cookie, header_cookies
