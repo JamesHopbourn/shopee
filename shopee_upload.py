@@ -248,7 +248,7 @@ def generate_request_data(excel_data, size_options, model_list, image_linklist):
 		"dimension": {},
 		"images": image_linklist,
 		"mtsku_item_id": 0,
-		"name": excel_data[excel_item_index('商品名称')].value
+		"name": excel_data[excel_item_index('商品名称')].value.strip()
 	}
 	return request_data
 
@@ -297,6 +297,7 @@ if __name__=="__main__":
 		# Excel 文件夹重名检测
 		excel_duplicates_check(excel_sheet)
 		# 循环处理所有的产品
+		print('虾皮自动上架软件 ver:1.0.4 2022-08-01\n软件问题反馈可联系微信：JamesHopbourn\n')
 		for index in range(len(excel_sheet)):
 			# 重置 network_status
 			network_status = 0
