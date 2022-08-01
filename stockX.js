@@ -4,7 +4,7 @@ javascript:(() => {
             return clipboardData.setData("Text", text);
         } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
             var textarea = document.createElement("textarea");
-            textarea.textContent = text;
+            textarea.textContent = text.trim();
             textarea.style.position = "fixed";
             document.body.appendChild(textarea);
             textarea.select();

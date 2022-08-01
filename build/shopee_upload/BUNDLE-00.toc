@@ -1,0 +1,3 @@
+([('shopee_upload',
+   '/Users/james/Code/shopee/dist/shopee_upload',
+   'EXECUTABLE')],)

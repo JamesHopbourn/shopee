@@ -10,12 +10,12 @@ from xlutils.copy import copy
 from urllib3 import *
 disable_warnings()
 
+print('虾皮自动上架软件 ver:1.0.5 2022-08-01\n软件问题反馈可联系微信：JamesHopbourn\n')
+application_path = input('请粘贴工作路径：')
+print()
+
 # 获取文件绝对路径
 def get_file_path(filename):
-	if getattr(sys, 'frozen', False):
-		application_path = os.path.dirname(os.path.realpath(sys.executable))
-	elif __file__:
-		application_path = os.path.dirname(__file__)
 	return os.path.join(application_path, filename)
 
 # Excel 文件夹重名检测
@@ -84,6 +84,7 @@ def get_image_name(directory_name):
 	# 如果是纯数字的情况
 	if(type(directory_name) != type('JamesHopbourn')):
 		directory_name = str(int(directory_name))
+	directory_name = get_file_path(directory_name)
 	files = os.listdir(directory_name)
 	for file in files:
 		if file.endswith(('.jpg', '.png', 'jpeg')):
@@ -284,7 +285,7 @@ def excel_launched_modify(status):
 	workbook = copy(xlrd.open_workbook(get_file_path('商品.xls')))
 	for i in range(len(status)):
 		workbook.get_sheet(0).write(status[i]+1, item_index, '完成')
-	workbook.save('商品.xls')
+	workbook.save(get_file_path('商品.xls'))
 	
 # 函数入口定义
 if __name__=="__main__":
@@ -297,7 +298,6 @@ if __name__=="__main__":
 		# Excel 文件夹重名检测
 		excel_duplicates_check(excel_sheet)
 		# 循环处理所有的产品
-		print('虾皮自动上架软件 ver:1.0.4 2022-08-01\n软件问题反馈可联系微信：JamesHopbourn\n')
 		for index in range(len(excel_sheet)):
 			# 重置 network_status
 			network_status = 0
@@ -336,6 +336,6 @@ if __name__=="__main__":
 				launch_status_array.append(index)
 			# 修改 Excel 产品上架情况单元格值
 		excel_launched_modify(launch_status_array)
-		print("\a自动上架完成")
+		print("自动上架完成")
 		print("敲击回车退出程序")
 		input()
