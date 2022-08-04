@@ -24,7 +24,7 @@ def excel_duplicates_check(data):
 	for item in data: dir_names.append(item[0].value)
 	if len(dir_names) != len(set(dir_names)):
 		print('Excel 中文件夹重名，请检查后重试')
-		print('敲击回车退出程序')
+		print('回车退出程序')
 		input()
 		sys.exit()
 
@@ -51,6 +51,8 @@ def get_shopID():
 	status = json.loads(account_info.text)
 	if (('errcode' in status) and (status['errcode'] == 1)):
 		print('cookies 失效，请重置 cookies.txt 文件')
+		print('回车退出程序')
+		input()
 		sys.exit()
 	return status['sub_account_info']['current_shop_id']
 
@@ -337,5 +339,5 @@ if __name__=="__main__":
 			# 修改 Excel 产品上架情况单元格值
 		excel_launched_modify(launch_status_array)
 		print("自动上架完成")
-		print("敲击回车退出程序")
+		print("回车退出程序")
 		input()
