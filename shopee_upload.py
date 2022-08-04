@@ -10,7 +10,7 @@ from xlutils.copy import copy
 from urllib3 import *
 disable_warnings()
 
-print('虾皮自动上架软件 ver:1.0.5 2022-08-01\n软件问题反馈可联系微信：JamesHopbourn\n')
+print('虾皮自动上架软件 ver:1.0.6 2022-08-04\n软件问题反馈可联系微信：JamesHopbourn\n')
 application_path = input('请粘贴工作路径：')
 print()
 
