@@ -11,12 +11,12 @@ from urllib3 import *
 disable_warnings()
 
 print('虾皮自动上架软件 ver:1.0.6 2022-08-04\n软件问题反馈可联系微信：JamesHopbourn\n')
-application_path = input('请粘贴工作路径：')
+root_path = input('请粘贴工作路径：')
 print()
 
 # 获取文件绝对路径
 def get_file_path(filename):
-	return os.path.join(application_path, filename)
+	return os.path.join(root_path, filename)
 
 # Excel 文件夹重名检测
 def excel_duplicates_check(data):
@@ -27,6 +27,30 @@ def excel_duplicates_check(data):
 		print('回车退出程序')
 		input()
 		sys.exit()
+
+# Excel 文件选择及容错处理
+def excel_file_choose(root_path):
+	excel = []
+	files = os.listdir(root_path)
+	for file in files:
+		if file.endswith(('.xls')): excel.append(f"{file}")
+	if(len(excel) == 0):
+		print('工作目录下没有 Excel 文件，请检查后重试！')
+		print('回车退出程序')
+		input()
+		sys.exit()
+	elif (len(excel) == 1):
+		excel = excel[0]
+		print(f"将读取【{excel}】内容上架\n请确认是否继续 [y/n]：", end='')
+		if (input().lower() != 'y'): sys.exit()
+	else:
+		for i in range(len(excel)):
+			print(f"{i+1}: {excel[i]}")
+		print("\nExcel 文件序号：", end='')
+		excel_index = int(input())-1
+		excel = excel[excel_index]
+	print()
+	return excel
 
 # cookies 文件解析
 def parse_cookies():
@@ -74,12 +98,12 @@ def read_excel(excel_filename):
 # 表格元素定位
 def excel_item_index(item_name):
 	header = []
-	table = xlrd.open_workbook(get_file_path('商品.xls'))
+	table = xlrd.open_workbook(get_file_path(excel_name))
 	sheet = table.sheet_by_index(0)
 	for key in sheet[0]: header.append(key.value)
 	return header.index(item_name)
 
-# 获取图片名字
+# 获取图片名字 调整主图顺序
 def get_image_name(directory_name):
 	image_linklist = []
 	# 如果是纯数字的情况
@@ -89,7 +113,18 @@ def get_image_name(directory_name):
 	files = os.listdir(directory_name)
 	for file in files:
 		if file.endswith(('.jpg', '.png', 'jpeg')):
-			image_linklist.append(f"{directory_name}/{file}")
+			image_linklist.append(file)
+	if (os.path.exists(os.path.join(directory_name, '123.jpg'))):
+		index = image_linklist.index('123.jpg')
+		image_linklist[0], image_linklist[index] = image_linklist[index], image_linklist[0]
+	elif (os.path.exists(os.path.join(directory_name, '123.png'))):
+		index = image_linklist.index('123.png')
+		image_linklist[0], image_linklist[index] = image_linklist[index], image_linklist[0]
+	elif (os.path.exists(os.path.join(directory_name, '123.jpeg'))):
+		index = image_linklist.index('123.jpeg')
+		image_linklist[0], image_linklist[index] = image_linklist[index], image_linklist[0]
+	for i in range(len(image_linklist)):
+		image_linklist[i] = f"{directory_name}/{image_linklist[i]}"
 	return image_linklist
 
 # 上传商品图片
@@ -284,10 +319,10 @@ def send_request(post_data):
 
 def excel_launched_modify(status):
 	item_index = excel_item_index('上架情况')
-	workbook = copy(xlrd.open_workbook(get_file_path('商品.xls')))
+	workbook = copy(xlrd.open_workbook(get_file_path(excel_name)))
 	for i in range(len(status)):
 		workbook.get_sheet(0).write(status[i]+1, item_index, '完成')
-	workbook.save(get_file_path('商品.xls'))
+	workbook.save(get_file_path(excel_name))
 	
 # 函数入口定义
 if __name__=="__main__":
@@ -296,7 +331,8 @@ if __name__=="__main__":
 		data_cookie = parse_cookies()[0]
 		header_cookies = parse_cookies()[1]
 		shopID = get_shopID()
-		excel_sheet = read_excel(get_file_path('商品.xls'))
+		excel_name = excel_file_choose(root_path)
+		excel_sheet = read_excel(get_file_path(excel_name))
 		# Excel 文件夹重名检测
 		excel_duplicates_check(excel_sheet)
 		# 循环处理所有的产品
