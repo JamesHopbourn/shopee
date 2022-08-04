@@ -197,7 +197,8 @@ def brand_id_mapper(brand_name):
 		"adidas": 1800379,
 		"nobrand": 0,
 		"nb": 1802060,
-		"puma": 2240153
+		"puma": 2240153,
+		"vans": 1802807
 	}
 	return brand_id_data[brand_name.lower()]
 
