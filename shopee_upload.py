@@ -106,23 +106,16 @@ def excel_item_index(item_name):
 # 获取图片名字 调整主图顺序
 def get_image_name(directory_name):
 	image = []
-	# 如果是纯数字的情况
 	if(type(directory_name) != type('JamesHopbourn')):
 		directory_name = str(int(directory_name))
 	directory_name = get_file_path(directory_name)
 	files = os.listdir(directory_name)
-	for file in files:
-		if file.endswith(('.jpg', '.png', 'jpeg')):
-			image.append(file)
-	if (os.path.exists(os.path.join(directory_name, '123.jpeg'))):
-		index = image.index('123.jpeg')
-		image[0], image[index] = image[index], image[0]
-	elif (os.path.exists(os.path.join(directory_name, '123.png'))):
-		index = image.index('123.png')
-		image[0], image[index] = image[index], image[0]
-	elif (os.path.exists(os.path.join(directory_name, '123.jpg'))):
-		index = image.index('123.jpg')
-		image[0], image[index] = image[index], image[0]
+	for x in range(len(files)):
+		if files[x].endswith(('.jpg', '.png', 'jpeg')):
+			image.append(files[x])
+		if (files[x] in ('123.jpg', '123.jpeg', '123.png')):
+			swap = image.index(files[x])
+			image[0], image[swap] = image[swap], image[0]
 	for i in range(len(image)):
 		image[i] = f"{directory_name}/{image[i]}"
 	return image
