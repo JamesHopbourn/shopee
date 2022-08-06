@@ -113,7 +113,7 @@ def get_image_name(directory_name):
 	for x in range(len(files)):
 		if files[x].endswith(('.jpg', '.png', 'jpeg')):
 			image.append(files[x])
-		if (files[x] in ('123.jpg', '123.jpeg', '123.png')):
+		if files[x] in ('123.jpg', '123.jpeg', '123.png'):
 			swap = image.index(files[x])
 			image[0], image[swap] = image[swap], image[0]
 	for i in range(len(image)):
