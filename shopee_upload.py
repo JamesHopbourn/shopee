@@ -10,7 +10,7 @@ from xlutils.copy import copy
 from urllib3 import *
 disable_warnings()
 
-print('虾皮自动上架软件 ver:1.0.6 2022-08-04\n软件问题反馈可联系微信：JamesHopbourn\n')
+print('虾皮自动上架软件 ver:1.0.7 2022-08-09\n软件问题反馈可联系微信：JamesHopbourn\n')
 root_path = input('请粘贴工作路径：')
 print()
 
@@ -106,18 +106,20 @@ def excel_item_index(item_name):
 # 获取图片名字 调整主图顺序
 def get_image_name(directory_name):
 	image = []
+	flag = True
 	if(type(directory_name) != type('JamesHopbourn')):
 		directory_name = str(int(directory_name))
 	directory_name = get_file_path(directory_name)
 	files = os.listdir(directory_name)
-	for x in range(len(files)):
-		if files[x].endswith(('.jpg', '.png', 'jpeg')):
-			image.append(files[x])
-		if files[x] in ('123.jpg', '123.jpeg', '123.png'):
-			swap = image.index(files[x])
+	for i in range(len(files)):
+		if files[i].endswith(('.jpg', '.png', 'jpeg')):
+			image.append(files[i])
+		if flag and files[i] in ('123.jpg', '123.jpeg', '123.png'):
+			flag = False
+			swap = image.index(files[i])
 			image[0], image[swap] = image[swap], image[0]
-	for i in range(len(image)):
-		image[i] = f"{directory_name}/{image[i]}"
+	for j in range(len(image)):
+		image[j] = f"{directory_name}/{image[j]}"
 	return image
 
 # 上传商品图片
@@ -228,7 +230,8 @@ def brand_id_mapper(brand_name):
 		"nobrand": 0,
 		"nb": 1802060,
 		"puma": 2240153,
-		"vans": 1802807
+		"vans": 1802807,
+		"nike": 2563603
 	}
 	return brand_id_data[brand_name.lower()]
 
@@ -344,8 +347,7 @@ if __name__=="__main__":
 			image_linklist = []
 			for image in get_image_name(excel_data[excel_item_index('文件夹名')].value):
 				image_linklist.append(get_image_hash(image))
-			if network_status == 1:
-				continue
+			if network_status == 1: continue
 			print(f"上传图片数量：{len(image_linklist)}")
 			# 获取价格和库存信息
 			excel_price = excel_data[excel_item_index('价格')].value
@@ -360,12 +362,11 @@ if __name__=="__main__":
 			post_data = generate_request_data(excel_data, size_options, model_list, image_linklist)
 			# 发送数据包上架商品返回状态码
 			launch_status_code = send_request(post_data)
-			if network_status == 1:
-				continue
+			# 判断网络状态
+			if network_status == 1: continue
 			# 根据状态码的情况决定是否追加
-			if (launch_status_code == 0):
-				launch_status_array.append(index)
-			# 修改 Excel 产品上架情况单元格值
+			if (launch_status_code == 0): launch_status_array.append(index)
+		# 修改 Excel 产品上架情况单元格值
 		excel_launched_modify(launch_status_array)
 		print("自动上架完成")
 		print("回车退出程序")
