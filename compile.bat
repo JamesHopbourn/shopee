@@ -1,9 +1,13 @@
+scp james@james.local:/Users/james/code/shopee/shopee_upload.py ./
+
 set /p version="input new version:"
 
-cd C:\Users\Administrator\Downloads
+cd C:\Users\James\Downloads
 
 del shopee_upload.spec
 
-pyinstaller -F --icon=shopee-logo.ico shopee_upload.py
+pyinstaller -F --add-data "api-ms-win-core-path-l1-1-0.dll;." --icon=shopee-logo.ico shopee_upload.py
 
 move /Y dist\shopee_upload.exe "%USERPROFILE%\Desktop\shopee %version%.exe"
+
+scp "%USERPROFILE%\Desktop\shopee %version%.exe" "james@james.local:~/Desktop"
