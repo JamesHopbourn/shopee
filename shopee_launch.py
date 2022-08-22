@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+import re
+import os
+import sys
+import json
+import time
+import requests
+import openpyxl
+from urllib3 import *
+disable_warnings()
+
+# cookies 文件解析
+def parse_cookies():
+	data_cookie = {}
+	header_cookies = ""
+	with open(os.path.join(dir_path,'cookies.txt'), 'r') as content:
+		cookies = json.loads(content.read())
+	for i in range(len(cookies)):
+		data = json.loads(json.dumps(cookies[i]))
+		data_cookie.update({data['name']: data['value']})
+		header_cookies += f"{data['name']}={data['value']}; "
+		header_cookies = header_cookies.replace('"', '\\"')
+	return data_cookie, header_cookies
+
+# API 通过 cookies 获取 shopID
+def get_shopID():
+	account_info = requests.get("https://seller.shopee.cn/api/cnsc/selleraccount/get_session/",
+		cookies=data_cookie,
+		auth=(),
+		verify=False
+	)
+	status = json.loads(account_info.text)
+	if (('errcode' in status) and (status['errcode'] == 1)):
+		print('cookies 失效，请重置 cookies.txt 文件')
+		print('回车退出程序')
+		input()
+		sys.exit()
+	return status['sub_account_info']['current_shop_id']
+
+# 获取图片名字 调整主图顺序
+def get_image_name(img_dir_name):
+	image = []
+	directory_name = os.path.join(dir_path, str(img_dir_name))
+	files = os.listdir(directory_name)
+	image = sorted(files, key=lambda name: int(re.sub('(^.*?\(|\)\..*$)', '', name)))
+	for i in range(len(image)):
+ 		image[i] = f"{directory_name}/{image[i]}"
+	return image
+
+# 性别尺码信息 男款 女款 情侣款
+# EU36,EU365,EU37,EU38,EU385,EU39
+# EU40,EU405,EU41,EU42,EU425,EU43,EU44,EU445,EU45,EUR46
+# EU36,EU365,EU37,EU38,EU385,EU39,EU40,EU405,EU41,EU42,EU425,EU43,EU44,EU445,EU45,EUR46
+def shose_size_mapper():
+	sizes = {
+		"EU36": "BR34=EU36=22.5CM=US5.5",
+		"EU365": "BR34.5=EU36.5=23CM=US6",
+		"EU37": "BR35.5=EU37=23.5CM=US6.5",
+		"EU38": "BR36=EU38=24CM=US7",
+		"EU385": "BR36.5=EU38.5=24.5CM=US7.5",
+		"EU39": "BR37=EU39=25CM=US8",
+		"EU40": "BR38=EU40=25CM=US7",
+		"EU405": "BR38.5=EU40.5=25.5cm=US7.5",
+		"EU41": "BR39=EU41=26CM=US8",
+		"EU42": "BR40=EU42=26.5CM=US8.5",
+		"EU425": "BR40.5=EU42.5=27CM=US9",
+		"EU43": "BR41=EU43=27.5CM=US9.5",
+		"EU44": "BR42=EU44=28CM=US10",
+		"EU445": "BR42.5=EU44.5=28.5CM=US10.5",
+		"EU45": "BR43=EU45=29CM=US11",
+		"EUR46": "BR44=EUR46=29.5CM=US11.5"
+	}
+	result = []
+	text = list(data['SKUsize'].upper().split(','))
+	for i in range(len(text)):
+		result.append(sizes[text[i]])	
+	return result
+
+# 商品类别映射函数
+def catagory_mapper(catagory_value):
+	category_mapper_data = {
+		"篮球鞋": [100637,100726,101298],
+		"跑步鞋": [100637,100726,101299],
+		"训练鞋": [100637,100726,101300],
+		"足球鞋": [100637,100726,101306],
+		"登山鞋": [100637,100726,101305],
+		"网球鞋": [100637,100726,101301],
+		"排球鞋": [100637,100726,101302],
+		"室内足球鞋": [100637,100726,101304]
+	}
+	return category_mapper_data[catagory_value]
+
+# 鞋子品牌映射函数
+def brand_id_mapper(brand_name):
+	brand_id_data = {
+		"air jordan": 1800399,
+		"adidas": 1800379,
+		"nobrand": 0,
+		"nb": 1802060,
+		"puma": 2240153,
+		"vans": 1802807,
+		"nike": 2563603
+	}
+	return brand_id_data[brand_name.lower()]
+			
+# 根据鞋码数量重复生成数据
+def generate_repeat_data(size_options):
+	model_list = []
+	if(data[second_format] == None):
+		for i in range(len(size_options)):
+			model_info = {
+				"mtsku_model_id": 0,
+				"seller_sku": "",
+				"stock_setting_list": [{"sellable_stock": data['库存']}],
+				"normal_price": f"{data['价格']}",
+				"is_default": False,
+				"tier_index": []
+			}
+			model_info['tier_index'].append(i)
+			model_list.append(model_info)
+	else:
+		for i in range(len(size_options)):
+			for j in range(len(data[second_format].split(','))):
+				model_info = {
+					"mtsku_model_id": 0,
+					"seller_sku": "",
+					"stock_setting_list": [{"sellable_stock": data['库存']}],
+					"normal_price": f"{data['价格']}",
+					"is_default": False,
+					"tier_index": []
+				}
+				model_info['tier_index'].append(j)
+				model_info['tier_index'].append(i)
+				model_list.append(model_info)
+	return model_list
+
+def generate_request_data(size_options, model_list, images):
+	request_data = {
+		"description": data['商品描述'],
+		"tier_variation": [],
+		"video_list": [],
+		"model_list": model_list,
+		"condition": 1,
+		"category_path": catagory_mapper(data['商品分类']),
+		"seller_sku": "",
+		"ds_cat_rcmd_id": "",
+		"description_type": "normal",
+		"weight": f"{data['包装重量']}",
+		"brand_id": brand_id_mapper(data['品牌']),
+		"days_to_ship": data['发货时间'],
+		"size_chart": "",
+		"attributes": [{
+			"attribute_id": 100022,
+			"attribute_value_id": {"女": 652, "男": 662, "情侣": 674}[data['性别']]
+		}],
+		"dimension": {},
+		"images": images,
+		"mtsku_item_id": 0,
+		"name": data['商品名称'].strip()
+	}
+	if(data[second_format] != None):
+		request_data['tier_variation'].append({
+			"images": [],
+			"name": f"{second_format.replace('SKU', '')}",
+			"options": data[second_format].split(',')
+		})
+	request_data['tier_variation'].append({
+		"images": [],
+		"name": "size",
+		"options": size_options
+	})
+	return request_data
+
+# 上传商品图片
+def get_image_hash(image_path):
+	try:
+		print(image_path)
+		image_encode = open(image_path, 'rb').read().decode('latin-1')
+		request = requests.post("https://seller.shopee.cn/api/v3/general/upload_image/",
+			params={
+				"SPC_CDS": "d05d282f-3101-4864-b375-66621f6584b4",
+				"SPC_CDS_VER": "2",
+				"cnsc_shop_id": shopID,
+			},
+			data=f"""------WebKitFormBoundaryJBDkf5fKShesvHzh
+Content-Disposition: form-data; name="file"; filename="blob"
+Content-Type: image/jpeg
+
+{image_encode}
+------WebKitFormBoundaryJBDkf5fKShesvHzh--
+
+""",
+			headers={
+				"Host": "seller.shopee.cn",
+				"accept": "application/json, text/plain, */*",
+				"accept-language": "zh-CN,zh;q=0.9",
+				"content-type": "multipart/form-data; boundary=----WebKitFormBoundaryJBDkf5fKShesvHzh",
+				"origin": "https://seller.shopee.cn",
+				"sc-fe-session": "9ea406c5-c0ec-45f9-aef5-c2aaf2d213f1",
+				"sc-fe-ver": "56878",
+				"sec-ch-ua": "\".Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\"",
+				"sec-ch-ua-mobile": "?0",
+				"sec-ch-ua-platform": "\"macOS\"",
+				"sec-fetch-dest": "empty",
+				"sec-fetch-mode": "cors",
+				"sec-fetch-site": "same-origin",
+				"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
+			},
+			cookies=data_cookie,
+			auth=(),
+			verify=False
+		)
+		return json.loads(request.text)['data']['resource_id']
+	except (Exception):
+		print('网络异常或者存在其他错误')
+		print(Exception)
+		network_status = 1
+		
+def send_request(post_data):
+	try:
+		response = requests.post(
+			url="https://seller.shopee.cn/api/v3/mtsku/create_mtsku/",
+			params={
+				"cnsc_shop_id": shopID,
+			},
+			headers={
+				"Cookie": f"{header_cookies}",
+				"Content-Type": "application/json; charset=utf-8",
+			},
+			data=json.dumps(post_data),
+			verify=False
+		)
+		status = json.loads(response.text)
+		print(status)
+		if (status['code'] == -2) and ('mtsku.CreateMtskuRequest.Name' in status['message']):
+			print("商品名称有误，请修改后重试")
+		elif (status['code'] == 100010003 and ('mtsku title or description language is illegal ' in status['message'])):
+			print('商品名称或者描述有误')
+		else:
+			print("上架成功 ✅") if(status['code'] == 0) else print("失败")
+		print()
+		return status['code']
+	except (Exception):
+		network_status = 1
+		pass	
+	
+# 函数入口定义
+if __name__=="__main__":
+	print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
+	network_status = 0
+	launch_status_array = []
+	# 定义两个 path
+	path = input('拖入 Excel 文件：')
+	dir_path = os.path.dirname(path)
+	# 解析 cookies 验证有效性
+	data_cookie = parse_cookies()[0]
+	header_cookies = parse_cookies()[1]
+	shopID = get_shopID()
+	# 开始处理数据
+	data = {}
+	result = {}
+	wb = openpyxl.load_workbook(path)
+	ws = wb.active
+	for i in range(2, ws.max_row+1):
+		for j in range(1, ws.max_column+1):
+			head = ws.cell(row=1, column=j).value
+			item = ws.cell(row=i, column=j).value
+			data[head] = item
+		if(data['上架情况'] == '完成'): continue
+		print(f"开始上架第 {i} 个产品")
+		# 随机数的暂停时间
+		print(f"随机暂停时间：{data['暂停时间']}秒")
+		time.sleep(data['暂停时间'])
+		# 定义数组，存放图片 ID
+		images = []
+		for image in get_image_name(data['文件夹名']):
+			images.append(get_image_hash(image))
+			if network_status == 1: continue
+			if(len(images) == 9): break
+		print(f"上传图片数量：{len(images)}")
+		# 从 Excel 读取性别信息，返回shose_size_mapper适配的尺码信息
+		size_options = shose_size_mapper()
+		# 获取 SKU 信息
+		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
+		# 根据尺码信息的数量构造库存价格对应信息
+		model_list = generate_repeat_data(size_options)
+		# 根据上面的参数构造整体的数据包
+		post_data = generate_request_data(size_options, model_list, images)
+		# 发送数据包上架商品返回状态码
+		launch_status_code = send_request(post_data)
+		# 判断网络状态
+		if network_status == 1: continue
+		# 根据状态码的情况决定是否追加
+		if (launch_status_code == 0): result.update({i: '完成'})
+# 修改 Excel 产品上架情况单元格值
+# index = list(data.keys()).index('上架情况')
+# for key in result:
+# 	ws.cell(row=key, column=index+1, value=result[key])
+# wb.save(path)
+print("自动上架完成")
+print("回车退出程序")
+input()
