@@ -10,7 +10,7 @@ from xlutils.copy import copy
 from urllib3 import *
 disable_warnings()
 
-print('虾皮自动上架软件 ver:1.0.7 2022-08-09\n软件问题反馈可联系微信：JamesHopbourn\n')
+print('虾皮自动上架软件 ver:1.0.9 2022-08-19\n软件问题反馈可联系微信：JamesHopbourn\n')
 root_path = input('请粘贴工作路径：')
 print()
 
@@ -105,22 +105,27 @@ def excel_item_index(item_name):
 
 # 获取图片名字 调整主图顺序
 def get_image_name(directory_name):
-	image = []
-	flag = True
-	if(type(directory_name) != type('JamesHopbourn')):
-		directory_name = str(int(directory_name))
-	directory_name = get_file_path(directory_name)
-	files = os.listdir(directory_name)
-	for i in range(len(files)):
-		if files[i].endswith(('.jpg', '.png', 'jpeg')):
-			image.append(files[i])
-		if flag and files[i] in ('123.jpg', '123.jpeg', '123.png'):
-			flag = False
-			swap = image.index(files[i])
-			image[0], image[swap] = image[swap], image[0]
-	for j in range(len(image)):
-		image[j] = f"{directory_name}/{image[j]}"
-	return image
+ 	image = []
+ 	# 如果是纯数字的情况
+ 	if(type(directory_name) != type('JamesHopbourn')):
+ 		directory_name = str(int(directory_name))
+ 	directory_name = get_file_path(directory_name)
+ 	files = os.listdir(directory_name)
+ 	for file in files:
+ 		if file.endswith(('.jpg', '.png', 'jpeg')):
+ 			image.append(file)
+ 	if (os.path.exists(os.path.join(directory_name, '123.jpeg'))):
+ 		index = image.index('123.jpeg')
+ 		image[0], image[index] = image[index], image[0]
+ 	elif (os.path.exists(os.path.join(directory_name, '123.png'))):
+ 		index = image.index('123.png')
+ 		image[0], image[index] = image[index], image[0]
+ 	elif (os.path.exists(os.path.join(directory_name, '123.jpg'))):
+ 		index = image.index('123.jpg')
+ 		image[0], image[index] = image[index], image[0]
+ 	for i in range(len(image)):
+ 		image[i] = f"{directory_name}/{image[i]}"
+ 	return image
 
 # 上传商品图片
 def get_image_hash(image_path):
