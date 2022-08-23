@@ -257,10 +257,10 @@ if __name__=="__main__":
 		# 根据状态码的情况决定是否追加
 		if (launch_status_code == 0): result.update({i: '完成'})
 # 修改 Excel 产品上架情况单元格值
-# index = list(data.keys()).index('上架情况')
-# for key in result:
-# 	ws.cell(row=key, column=index+1, value=result[key])
-# wb.save(path)
+index = list(data.keys()).index('上架情况')
+for key in result:
+	ws.cell(row=key, column=index+1, value=result[key])
+wb.save(path)
 print("自动上架完成")
 print("回车退出程序")
 input()
