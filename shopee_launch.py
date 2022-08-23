@@ -206,9 +206,8 @@ Content-Type: image/jpeg
 		)
 		return json.loads(request.text)['data']['resource_id']
 	except (Exception):
-		print('网络异常或者存在其他错误')
-		print(Exception)
 		network_status = 1
+		print(f'网络异常或者存在其他错误\n{Exception}')
 		
 def send_request(post_data):
 	try:
@@ -225,7 +224,6 @@ def send_request(post_data):
 			verify=False
 		)
 		status = json.loads(response.text)
-		print(status)
 		if (status['code'] == -2) and ('mtsku.CreateMtskuRequest.Name' in status['message']):
 			print("商品名称有误，请修改后重试")
 		elif (status['code'] == 100010003 and ('mtsku title or description language is illegal ' in status['message'])):
@@ -234,10 +232,9 @@ def send_request(post_data):
 			print("上架成功 ✅") if(status['code'] == 0) else print("失败")
 		print()
 		return status['code']
-	except (Exception):
-		print(Exception)
+	except (Exception):		
 		network_status = 1
-		pass	
+		print(f'网络异常或者存在其他错误\n{Exception}')
 	
 # 函数入口定义
 if __name__=="__main__":
@@ -245,7 +242,7 @@ if __name__=="__main__":
 	print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
 	path = input('拖入 Excel 文件：')
 	dir_path = os.path.dirname(path)
-	# 解析 cookies 验证有效性
+	# 解析 cookies
 	data_cookie = parse_cookies()[0]
 	header_cookies = parse_cookies()[1]
 	shopID = get_shopID()
@@ -287,10 +284,10 @@ if __name__=="__main__":
 		# 根据状态码的情况决定是否追加
 		if (launch_status_code == 0): result.update({i: '完成'})
 # 修改 Excel 产品上架情况单元格值
-# index = list(data.keys()).index('上架情况')
-# for key in result:
-# 	ws.cell(row=key, column=index+1, value=result[key])
-# wb.save(path)
+index = list(data.keys()).index('上架情况')
+for key in result:
+	ws.cell(row=key, column=index+1, value=result[key])
+wb.save(path)
 print("自动上架完成")
 print("回车退出程序")
 input()
