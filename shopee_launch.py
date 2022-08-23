@@ -47,10 +47,7 @@ def get_image_name(img_dir_name):
  		image[i] = f"{directory_name}/{image[i]}"
 	return image
 
-# 性别尺码信息 男款 女款 情侣款
-# EU36,EU365,EU37,EU38,EU385,EU39
-# EU40,EU405,EU41,EU42,EU425,EU43,EU44,EU445,EU45,EUR46
-# EU36,EU365,EU37,EU38,EU385,EU39,EU40,EU405,EU41,EU42,EU425,EU43,EU44,EU445,EU45,EUR46
+# 性别尺码信息 女款 男款 情侣款
 def shose_size_mapper():
 	sizes = {
 		"EU36": "BR34=EU36=22.5CM=US5.5",
@@ -78,7 +75,7 @@ def shose_size_mapper():
 
 # 商品类别映射函数
 def catagory_mapper(catagory_value):
-	category_mapper_data = {
+	return {
 		"篮球鞋": [100637,100726,101298],
 		"跑步鞋": [100637,100726,101299],
 		"训练鞋": [100637,100726,101300],
@@ -87,12 +84,11 @@ def catagory_mapper(catagory_value):
 		"网球鞋": [100637,100726,101301],
 		"排球鞋": [100637,100726,101302],
 		"室内足球鞋": [100637,100726,101304]
-	}
-	return category_mapper_data[catagory_value]
+	}[catagory_value]
 
 # 鞋子品牌映射函数
 def brand_id_mapper(brand_name):
-	brand_id_data = {
+	return {
 		"air jordan": 1800399,
 		"adidas": 1800379,
 		"nobrand": 0,
@@ -100,8 +96,7 @@ def brand_id_mapper(brand_name):
 		"puma": 2240153,
 		"vans": 1802807,
 		"nike": 2563603
-	}
-	return brand_id_data[brand_name.lower()]
+	}[brand_name.lower()]
 			
 # 根据鞋码数量重复生成数据
 def generate_repeat_data(size_options):
@@ -277,7 +272,7 @@ if __name__=="__main__":
 			if network_status == 1: continue
 			if(len(images) == 9): break
 		print(f"上传图片数量：{len(images)}")
-		# 从 Excel 读取性别信息，返回shose_size_mapper适配的尺码信息
+		# 从 Excel 读取性别信息，返回 shose_size_mapper 适配的尺码信息
 		size_options = shose_size_mapper()
 		# 获取 SKU 信息
 		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
