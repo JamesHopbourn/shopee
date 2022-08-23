@@ -46,31 +46,6 @@ def get_image_name(img_dir_name):
 	for i in range(len(images)): images[i] = f"{directory_name}/{images[i]}"
 	return images
 
-# 性别尺码信息 女款 男款 情侣款
-def shose_size_mapper():
-	sizes = {
-		"EU36": "BR34=EU36=22.5CM=US5.5",
-		"EU365": "BR34.5=EU36.5=23CM=US6",
-		"EU37": "BR35.5=EU37=23.5CM=US6.5",
-		"EU38": "BR36=EU38=24CM=US7",
-		"EU385": "BR36.5=EU38.5=24.5CM=US7.5",
-		"EU39": "BR37=EU39=25CM=US8",
-		"EU40": "BR38=EU40=25CM=US7",
-		"EU405": "BR38.5=EU40.5=25.5cm=US7.5",
-		"EU41": "BR39=EU41=26CM=US8",
-		"EU42": "BR40=EU42=26.5CM=US8.5",
-		"EU425": "BR40.5=EU42.5=27CM=US9",
-		"EU43": "BR41=EU43=27.5CM=US9.5",
-		"EU44": "BR42=EU44=28CM=US10",
-		"EU445": "BR42.5=EU44.5=28.5CM=US10.5",
-		"EU45": "BR43=EU45=29CM=US11",
-		"EUR46": "BR44=EUR46=29.5CM=US11.5"
-	}
-	result = []
-	text = list(data['SKUsize'].upper().split(','))
-	for i in range(len(text)): result.append(sizes[text[i]])
-	return result
-
 # 商品类别映射函数
 def catagory_mapper():
 	return {
@@ -122,7 +97,7 @@ def generate_repeat_data(size_options):
 					"is_default": False,
 					"tier_index": []
 				}
-				model_info['tier_index'].extend([j,i])
+				model_info['tier_index'].extend([j, i])
 				model_list.append(model_info)
 	return model_list
 
@@ -227,6 +202,7 @@ def send_request(post_data):
 		elif (status['code'] == 100010003 and ('mtsku title or description language is illegal ' in status['message'])):
 			print('商品名称或者描述有误')
 		else:
+			print(status)
 			print("上架成功 ✅") if(status['code'] == 0) else print("失败")
 		print()
 		return status['code']
@@ -269,7 +245,7 @@ if __name__=="__main__":
 		# 获取第二个SKU信息
 		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
 		# 从 Excel 读取性别信息，返回 size_options 适配的尺码信息
-		size_options = shose_size_mapper()
+		size_options = list(data['SKUsize'].split(','))
 		# 根据尺码信息的数量构造库存价格对应信息
 		model_list = generate_repeat_data(size_options)
 		# 根据上面的两个参数构造整体的数据包
