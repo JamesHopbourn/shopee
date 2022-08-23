@@ -39,14 +39,13 @@ def get_shopID():
 
 # 获取图片名字 调整主图顺序
 def get_image_name(img_dir_name):
-	image = []
-	files = []
+	images = []
 	directory_name = os.path.join(dir_path, str(img_dir_name))
 	for item in os.listdir(directory_name):
-		if (item.endswith(('.png','.jpg','jpeg'))): files.append(item)
-	image = sorted(files, key=lambda name: int(re.sub('(^.*?\(|\)\..*$)', '', name)))
-	for i in range(len(image)): image[i] = f"{directory_name}/{image[i]}"
-	return image
+		if (item.endswith(('.png','.jpg','jpeg'))): images.append(item)
+	images = sorted(images, key=lambda name: int(re.sub('(^.*?\(|\)\..*$)', '', name)))
+	for i in range(len(images)): images[i] = f"{directory_name}/{images[i]}"
+	return images
 
 # 性别尺码信息 女款 男款 情侣款
 def shose_size_mapper():
