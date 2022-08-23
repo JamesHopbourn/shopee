@@ -43,10 +43,9 @@ def get_image_name(img_dir_name):
 	files = []
 	directory_name = os.path.join(dir_path, str(img_dir_name))
 	for item in os.listdir(directory_name):
-		if (item.endswith(('.png','.jpg','jpeg'))):files.append(item)
+		if (item.endswith(('.png','.jpg','jpeg'))): files.append(item)
 	image = sorted(files, key=lambda name: int(re.sub('(^.*?\(|\)\..*$)', '', name)))
-	for i in range(len(image)):
- 		image[i] = f"{directory_name}/{image[i]}"
+	for i in range(len(image)): image[i] = f"{directory_name}/{image[i]}"
 	return image
 
 # 性别尺码信息 女款 男款 情侣款
