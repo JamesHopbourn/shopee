@@ -40,8 +40,10 @@ def get_shopID():
 # 获取图片名字 调整主图顺序
 def get_image_name(img_dir_name):
 	image = []
+	files = []
 	directory_name = os.path.join(dir_path, str(img_dir_name))
-	files = os.listdir(directory_name)
+	for item in os.listdir(directory_name):
+		if (item.endswith(('.png','.jpg','jpeg'))):files.append(item)
 	image = sorted(files, key=lambda name: int(re.sub('(^.*?\(|\)\..*$)', '', name)))
 	for i in range(len(image)):
  		image[i] = f"{directory_name}/{image[i]}"
@@ -148,13 +150,13 @@ def generate_request_data(size_options, model_list, images):
 			"attribute_value_id": {"女": 652, "男": 662, "情侣": 674}[data['性别']]
 		}],
 		"dimension": {},
-		"images": images,
+		"images": images[:9],
 		"mtsku_item_id": 0,
 		"name": data['商品名称'].strip()
 	}
 	if(data[second_format] != None):
 		request_data['tier_variation'].append({
-			"images": [],
+			"images": images[:len(data[second_format].split(','))],
 			"name": f"{second_format.replace('SKU', '')}",
 			"options": data[second_format].split(',')
 		})
@@ -267,7 +269,6 @@ if __name__=="__main__":
 		for image in get_image_name(data['文件夹名']):
 			images.append(get_image_hash(image))
 			if network_status == 1: continue
-			if(len(images) == 9): break
 		print(f"上传图片数量：{len(images)}")
 		# 获取第二个SKU信息
 		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
@@ -284,10 +285,10 @@ if __name__=="__main__":
 		# 根据状态码的情况决定是否追加
 		if (launch_status_code == 0): result.update({i: '完成'})
 # 修改 Excel 产品上架情况单元格值
-index = list(data.keys()).index('上架情况')
-for key in result:
-	ws.cell(row=key, column=index+1, value=result[key])
-wb.save(path)
+# index = list(data.keys()).index('上架情况')
+# for key in result:
+# 	ws.cell(row=key, column=index+1, value=result[key])
+# wb.save(path)
 print("自动上架完成")
 print("回车退出程序")
 input()
