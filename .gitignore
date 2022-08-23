@@ -2,5 +2,7 @@
 *.xls
 *.xlsx
 [0-9]*/
+dist/
+build/
 __pycache__/
 
