@@ -31,8 +31,7 @@ def get_shopID():
 	)
 	status = json.loads(account_info.text)
 	if (('errcode' in status) and (status['errcode'] == 1)):
-		print('cookies 失效，请重置 cookies.txt 文件')
-		print('回车退出程序')
+		print('cookies 失效，请重置 cookies.txt 文件\n回车退出程序')
 		input()
 		sys.exit()
 	return status['sub_account_info']['current_shop_id']
@@ -69,8 +68,7 @@ def shose_size_mapper():
 	}
 	result = []
 	text = list(data['SKUsize'].upper().split(','))
-	for i in range(len(text)):
-		result.append(sizes[text[i]])	
+	for i in range(len(text)): result.append(sizes[text[i]])
 	return result
 
 # 商品类别映射函数
