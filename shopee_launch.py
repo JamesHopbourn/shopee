@@ -129,8 +129,7 @@ def generate_repeat_data(size_options):
 					"is_default": False,
 					"tier_index": []
 				}
-				model_info['tier_index'].append(j)
-				model_info['tier_index'].append(i)
+				model_info['tier_index'].extend([j,i])
 				model_list.append(model_info)
 	return model_list
 
