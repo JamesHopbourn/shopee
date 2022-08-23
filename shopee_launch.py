@@ -74,7 +74,7 @@ def shose_size_mapper():
 	return result
 
 # 商品类别映射函数
-def catagory_mapper(catagory_value):
+def catagory_mapper():
 	return {
 		"篮球鞋": [100637,100726,101298],
 		"跑步鞋": [100637,100726,101299],
@@ -84,10 +84,10 @@ def catagory_mapper(catagory_value):
 		"网球鞋": [100637,100726,101301],
 		"排球鞋": [100637,100726,101302],
 		"室内足球鞋": [100637,100726,101304]
-	}[catagory_value]
+	}[data['商品分类']]
 
 # 鞋子品牌映射函数
-def brand_id_mapper(brand_name):
+def brand_id_mapper():
 	return {
 		"air jordan": 1800399,
 		"adidas": 1800379,
@@ -96,7 +96,7 @@ def brand_id_mapper(brand_name):
 		"puma": 2240153,
 		"vans": 1802807,
 		"nike": 2563603
-	}[brand_name.lower()]
+	}[data['品牌'].lower()]
 			
 # 根据鞋码数量重复生成数据
 def generate_repeat_data(size_options):
@@ -135,12 +135,12 @@ def generate_request_data(size_options, model_list, images):
 		"video_list": [],
 		"model_list": model_list,
 		"condition": 1,
-		"category_path": catagory_mapper(data['商品分类']),
+		"category_path": catagory_mapper(),
 		"seller_sku": "",
 		"ds_cat_rcmd_id": "",
 		"description_type": "normal",
 		"weight": f"{data['包装重量']}",
-		"brand_id": brand_id_mapper(data['品牌']),
+		"brand_id": brand_id_mapper(),
 		"days_to_ship": data['发货时间'],
 		"size_chart": "",
 		"attributes": [{
@@ -235,15 +235,14 @@ def send_request(post_data):
 		print()
 		return status['code']
 	except (Exception):
+		print(Exception)
 		network_status = 1
 		pass	
 	
 # 函数入口定义
 if __name__=="__main__":
-	print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
-	network_status = 0
-	launch_status_array = []
 	# 定义两个 path
+	print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
 	path = input('拖入 Excel 文件：')
 	dir_path = os.path.dirname(path)
 	# 解析 cookies 验证有效性
@@ -253,6 +252,7 @@ if __name__=="__main__":
 	# 开始处理数据
 	data = {}
 	result = {}
+	network_status = 0
 	wb = openpyxl.load_workbook(path)
 	ws = wb.active
 	for i in range(2, ws.max_row+1):
@@ -261,7 +261,7 @@ if __name__=="__main__":
 			item = ws.cell(row=i, column=j).value
 			data[head] = item
 		if(data['上架情况'] == '完成'): continue
-		print(f"开始上架第 {i} 个产品")
+		print(f"开始上架第 {i-1} 个产品")
 		# 随机数的暂停时间
 		print(f"随机暂停时间：{data['暂停时间']}秒")
 		time.sleep(data['暂停时间'])
@@ -272,13 +272,13 @@ if __name__=="__main__":
 			if network_status == 1: continue
 			if(len(images) == 9): break
 		print(f"上传图片数量：{len(images)}")
-		# 从 Excel 读取性别信息，返回 shose_size_mapper 适配的尺码信息
-		size_options = shose_size_mapper()
-		# 获取 SKU 信息
+		# 获取第二个SKU信息
 		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
+		# 从 Excel 读取性别信息，返回 size_options 适配的尺码信息
+		size_options = shose_size_mapper()
 		# 根据尺码信息的数量构造库存价格对应信息
 		model_list = generate_repeat_data(size_options)
-		# 根据上面的参数构造整体的数据包
+		# 根据上面的两个参数构造整体的数据包
 		post_data = generate_request_data(size_options, model_list, images)
 		# 发送数据包上架商品返回状态码
 		launch_status_code = send_request(post_data)
