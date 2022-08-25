@@ -11,8 +11,7 @@ disable_warnings()
 
 # cookies 文件解析
 def parse_cookies():
-	data_cookie = {}
-	header_cookies = ""
+	data_cookie, header_cookies = {}, ""
 	with open(os.path.join(dir_path,'cookies.txt'), 'r') as content:
 		cookies = json.loads(content.read())
 	for i in range(len(cookies)):
@@ -30,8 +29,8 @@ def get_shopID():
 		verify=False
 	)
 	status = json.loads(account_info.text)
-	if (('errcode' in status) and (status['errcode'] == 1)):
-		print('cookies 失效，请重置 cookies.txt 文件\n回车退出程序')
+	if ('errcode' in status):
+		print(f'{status}\ncookies 失效，请重置 cookies.txt 文件\n回车退出程序')
 		input()
 		sys.exit()
 	return status['sub_account_info']['current_shop_id']
@@ -212,8 +211,8 @@ def send_request(post_data):
 	
 # 函数入口定义
 if __name__=="__main__":
-	# 定义两个 path
 	print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
+	# 定义两个 path
 	path = input('拖入 Excel 文件：')
 	dir_path = os.path.dirname(path)
 	# 解析 cookies
@@ -221,9 +220,8 @@ if __name__=="__main__":
 	header_cookies = parse_cookies()[1]
 	shopID = get_shopID()
 	# 开始处理数据
-	data = {}
-	result = {}
 	network_status = 0
+	data, result = {}, {}
 	wb = openpyxl.load_workbook(path)
 	ws = wb.active
 	for i in range(2, ws.max_row+1):
