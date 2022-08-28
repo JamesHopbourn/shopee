@@ -12,8 +12,9 @@ disable_warnings()
 # cookies 文件解析
 def parse_cookies():
 	data_cookie, header_cookies = {}, ""
-	with open(os.path.join(dir_path,'cookies.txt'), 'r') as content:
-		cookies = json.loads(content.read())
+	# with open(os.path.join(dir_path,'cookies.txt'), 'r') as content:
+		# cookies = json.loads(content.read())
+	cookies = json.loads(open(os.path.join(dir_path,'cookies.txt')).read())
 	for i in range(len(cookies)):
 		data = json.loads(json.dumps(cookies[i]))
 		data_cookie.update({data['name']: data['value']})
