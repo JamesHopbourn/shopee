@@ -199,9 +199,10 @@ def send_request(post_data):
 			print("商品名称有误，请修改后重试")
 		elif (status['code'] == 100010003 and ('mtsku title or description language is illegal ' in status['message'])):
 			print('商品名称或者描述有误')
+		elif (status['code'] == 0):
+			print("上架成功 ✅")
 		else:
-			print(status)
-			print("上架成功 ✅") if(status['code'] == 0) else print("失败")
+			print(f"{print(status)}\n失败")
 		print()
 		return status['code']
 	except (Exception):		
