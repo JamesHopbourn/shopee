@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import string
-
+import random
 
 def demo():
 	return "james done"
@@ -39,3 +39,8 @@ print("unbrella".count('l'))
 data, result = {}, {}
 data.update({"james":"12"})
 print(data,result)
+
+
+l = list(range(100))
+random.shuffle(l)
+print(sorted(l,reverse=True))
