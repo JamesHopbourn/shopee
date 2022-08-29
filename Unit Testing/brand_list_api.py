@@ -19,5 +19,4 @@ for i in [100016, 100637]:
 	data = json.loads(brand_list.text)['data']['list'][0]['brand_list']
 	for item in data:
 		brand.update({item['name'].lower(): item['brand_id']})
-
-print(brand)
+	print(brand)
