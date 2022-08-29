@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import time
+import uuid
 import string
 import requests
 import openpyxl
@@ -148,7 +149,6 @@ def get_image_hash(image_path):
 		image_encode = open(image_path, 'rb').read().decode('latin-1')
 		request = requests.post("https://seller.shopee.cn/api/v3/general/upload_image/",
 			params={
-				"SPC_CDS": "d05d282f-3101-4864-b375-66621f6584b4",
 				"SPC_CDS_VER": "2",
 				"cnsc_shop_id": shopID,
 			},
@@ -166,7 +166,7 @@ Content-Type: image/jpeg
 				"accept-language": "zh-CN,zh;q=0.9",
 				"content-type": f"multipart/form-data; boundary=----WebKitFormBoundary{''.join(character[-16:])}",
 				"origin": "https://seller.shopee.cn",
-				"sc-fe-session": "9ea406c5-c0ec-45f9-aef5-c2aaf2d213f1",
+				"sc-fe-session": f"{uuid.uuid4()}",
 				"sc-fe-ver": "56878",
 				"sec-ch-ua": "\".Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\"",
 				"sec-ch-ua-mobile": "?0",
