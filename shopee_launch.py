@@ -4,9 +4,11 @@ import os
 import sys
 import json
 import time
+import string
 import requests
 import openpyxl
 from urllib3 import *
+from random import choice
 disable_warnings()
 
 # cookies 文件解析
@@ -138,6 +140,9 @@ def generate_request_data(size_options, model_list, images):
 
 # 上传商品图片
 def get_image_hash(image_path):
+	sets, character = [],[string.ascii_lowercase, string.ascii_uppercase, string.digits]
+	[sets.append(i[j]) for i in character for j in range(len(i))]
+	[character.append(choice(sets)) for i in range(16)]
 	try:
 		print(image_path)
 		image_encode = open(image_path, 'rb').read().decode('latin-1')
@@ -147,19 +152,19 @@ def get_image_hash(image_path):
 				"SPC_CDS_VER": "2",
 				"cnsc_shop_id": shopID,
 			},
-			data=f"""------WebKitFormBoundaryJBDkf5fKShesvHzh
+			data=f"""------WebKitFormBoundary{''.join(character[-16:])}
 Content-Disposition: form-data; name="file"; filename="blob"
 Content-Type: image/jpeg
 
 {image_encode}
-------WebKitFormBoundaryJBDkf5fKShesvHzh--
+------WebKitFormBoundary{''.join(character[-16:])}--
 
 """,
 			headers={
 				"Host": "seller.shopee.cn",
 				"accept": "application/json, text/plain, */*",
 				"accept-language": "zh-CN,zh;q=0.9",
-				"content-type": "multipart/form-data; boundary=----WebKitFormBoundaryJBDkf5fKShesvHzh",
+				"content-type": f"multipart/form-data; boundary=----WebKitFormBoundary{''.join(character[-16:])}",
 				"origin": "https://seller.shopee.cn",
 				"sc-fe-session": "9ea406c5-c0ec-45f9-aef5-c2aaf2d213f1",
 				"sc-fe-ver": "56878",
@@ -247,9 +252,9 @@ if __name__=="__main__":
 		# 根据尺码信息的数量构造库存价格对应信息
 		model_list = generate_repeat_data(size_options)
 		# 根据上面的两个参数构造整体的数据包
-		post_data = generate_request_data(size_options, model_list, images)
+		request_data = generate_request_data(size_options, model_list, images)
 		# 发送数据包上架商品返回状态码
-		launch_status_code = send_request(post_data)
+		launch_status_code = send_request(request_data)
 		# 判断网络状态
 		if network_status == 1: continue
 		# 根据状态码的情况决定是否追加
