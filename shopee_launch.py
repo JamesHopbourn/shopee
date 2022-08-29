@@ -57,7 +57,23 @@ def catagory_mapper():
 		"登山鞋": [100637,100726,101305],
 		"网球鞋": [100637,100726,101301],
 		"排球鞋": [100637,100726,101302],
-		"室内足球鞋": [100637,100726,101304]
+		"室内足球鞋": [100637,100726,101304],
+		"女包背包": [100016, 100089], #通过222222
+		"女包手拿包": [100016, 100091], #通过
+		"女包腰包胸包": [100016, 100092], #通过
+		"女包托特包": [100016, 100093], #通过222222
+		"女包手提包": [100016, 100094], #通过222222
+		"女包斜挎包单肩包": [100016, 100095], #通过222222
+		"女包钱包卡包": [100016, 100096, 100338], #通过
+		"女包钱包零钱包": [100016, 100096, 100339], #通过
+		"女包钱包手机钥匙包": [100016, 100096, 100340], #通过
+		"女包钱包双折三折钱包": [100016, 100096, 100341], #通过
+		"女包钱包长款钱包": [100016, 100096, 100342], #通过
+		"女包包包配件背带": [100016, 100097, 100344], #通过
+		"女包包包配件挂钩": [100016, 100097, 100345], #通过
+		"女包包包配件吊饰": [100016, 100097, 100346], #通过
+		"女包包包配件收纳包": [100016, 100097, 100347], #通过
+		"女包包包配件清洁保养用品": [100016, 100097, 100348] #通过
 	}[data['商品分类']]
 
 # 鞋子品牌映射函数
@@ -117,17 +133,37 @@ def generate_request_data(size_options, model_list, images):
 		"brand_id": brand_id_mapper(),
 		"days_to_ship": data['发货时间'],
 		"size_chart": "",
-		"attributes": [{
-			"attribute_id": 100022,
-			"attribute_value_id": {"女": 652, "男": 662, "情侣": 674}[data['性别']]
-		}],
+		"attributes": [],
 		"dimension": {},
 		"images": images[:9],
 		"mtsku_item_id": 0,
 		"name": data['商品名称'].strip()
 	}
-	if(data[second_format] != None):
-		request_data['tier_variation'].append({
+	if (data.get('子母包')): request_data['attributes'].append({
+			"attribute_id": 100221,
+			"attribute_value_id": {"是":1800,"否":1792}[data['子母包']]
+		})
+	if (data.get('尺寸')): request_data['attributes'].append({
+			"attribute_id": 100218,
+			"attribute_value_id": {"微型":1793,"其他":1804}[data['尺寸']]
+		})
+	if (data.get('性别')): request_data['attributes'].append({
+			"attribute_id": 100022,
+			"attribute_value_id": {"女":652,"男":662,"情侣":674}[data['性别']]
+		})
+	if (data.get('场合')): request_data['attributes'].append({
+			"attribute_id": 100155,
+			"attribute_value_id": {"办公":1527,"休闲":1387,"正式":1433,"其他":1397,"户外活动":1515,"运动":1502}[data['场合']]
+		})
+	if (data.get('材质')): request_data['attributes'].append({
+			"attribute_id": 100134,
+			"attribute_value_id": {"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}[data['材质']]
+		})
+	if (data.get('包包款式')): request_data['attributes'].append({
+			"attribute_id": 100216,
+			"attribute_value_id": {"波士顿包":1797,"水桶包":1805,"相机包":1816,"链条包":1826,"半月包":1835,"饺子包":1846,"邮差包":1855,"其他":1867,"马鞍包":1878,"小方包":1888}[data['包包款式']]
+		})
+	if(data.get(second_format)): request_data['tier_variation'].append({
 			"images": images[:len(data[second_format].split(','))],
 			"name": f"{second_format.replace('SKU', '')}",
 			"options": data[second_format].split(',')
