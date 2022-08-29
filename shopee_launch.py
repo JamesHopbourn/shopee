@@ -139,30 +139,22 @@ def generate_request_data(size_options, model_list, images):
 		"mtsku_item_id": 0,
 		"name": data['商品名称'].strip()
 	}
-	if (data.get('子母包')): request_data['attributes'].append({
-			"attribute_id": 100221,
-			"attribute_value_id": {"是":1800,"否":1792}[data['子母包']]
-		})
-	if (data.get('尺寸')): request_data['attributes'].append({
-			"attribute_id": 100218,
-			"attribute_value_id": {"微型":1793,"其他":1804}[data['尺寸']]
-		})
-	if (data.get('性别')): request_data['attributes'].append({
-			"attribute_id": 100022,
-			"attribute_value_id": {"女":652,"男":662,"情侣":674}[data['性别']]
-		})
-	if (data.get('场合')): request_data['attributes'].append({
-			"attribute_id": 100155,
-			"attribute_value_id": {"办公":1527,"休闲":1387,"正式":1433,"其他":1397,"户外活动":1515,"运动":1502}[data['场合']]
-		})
-	if (data.get('材质')): request_data['attributes'].append({
-			"attribute_id": 100134,
-			"attribute_value_id": {"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}[data['材质']]
-		})
-	if (data.get('包包款式')): request_data['attributes'].append({
-			"attribute_id": 100216,
-			"attribute_value_id": {"波士顿包":1797,"水桶包":1805,"相机包":1816,"链条包":1826,"半月包":1835,"饺子包":1846,"邮差包":1855,"其他":1867,"马鞍包":1878,"小方包":1888}[data['包包款式']]
-		})
+	attributes = [
+		['子母包', 100221, {"是":1800,"否":1792}],
+		['尺寸', 100218, {"微型":1793,"其他":1804}],
+		['性别', 100022, {"女":652,"男":662,"男女皆宜":674}],
+		['场合', 100155, {"办公":1527,"休闲":1387,"正式":1433,"其他":1397,"户外活动":1515,"运动":1502}],
+		['材质', 100134, {"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}],
+		['包包款式', 100216, {"波士顿包":1797,"水桶包":1805,"相机包":1816,"链条包":1826,"半月包":1835,"饺子包":1846,"邮差包":1855,"其他":1867,"马鞍包":1878,"小方包":1888}]
+	]
+	attr = []
+	[attr.append(attributes[i][0]) for i in range(len(attributes))]
+	for item in attributes:
+		if(data.get(item[0])):
+			request_data['attributes'].append({
+				"attribute_id": attributes[attr.index(item[0])][1],
+				"attribute_value_id": attributes[attr.index(item[0])][2][data[item[0]]]
+			})
 	if(data.get(second_format)): request_data['tier_variation'].append({
 			"images": images[:len(data[second_format].split(','))],
 			"name": f"{second_format.replace('SKU', '')}",
