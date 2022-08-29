@@ -147,8 +147,7 @@ def generate_request_data(size_options, model_list, images):
 		['材质', 100134, {"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}],
 		['包包款式', 100216, {"波士顿包":1797,"水桶包":1805,"相机包":1816,"链条包":1826,"半月包":1835,"饺子包":1846,"邮差包":1855,"其他":1867,"马鞍包":1878,"小方包":1888}]
 	]
-	attr = []
-	[attr.append(attributes[i][0]) for i in range(len(attributes))]
+	attr = [a for a, _, _ in attributes]
 	for item in attributes:
 		if(data.get(item[0])):
 			request_data['attributes'].append({
