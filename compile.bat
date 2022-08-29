@@ -12,4 +12,8 @@ move /Y dist\shopee_launch.exe "%USERPROFILE%\Desktop\shopee %version%.exe"
 
 scp "%USERPROFILE%\Desktop\shopee %version%.exe" "james@james.local:~/Code/shopee"
 
+scp james@james.local:$HOME/code/shopee/*.xlsx "%USERPROFILE%/Desktop"
+
+scp james@james.local:$HOME/code/shopee/cookies.txt "%USERPROFILE%/Desktop"
+
 exit
