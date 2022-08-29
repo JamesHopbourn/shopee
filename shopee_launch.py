@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import re
 import os
-import sys
 import json
-import time
-import uuid
 import string
 import requests
 import openpyxl
+from sys import exit
 from urllib3 import *
+from time import sleep
+from uuid import uuid4
 from random import choice
 disable_warnings()
 
@@ -34,7 +34,7 @@ def get_shopID():
 	if ('errcode' in status):
 		print(f'{status}\ncookies 失效，请重置 cookies.txt 文件\n回车退出程序')
 		input()
-		sys.exit()
+		exit()
 	return status['sub_account_info']['current_shop_id']
 
 # 获取图片名字 调整主图顺序
@@ -202,7 +202,7 @@ Content-Type: image/jpeg
 				"accept-language": "zh-CN,zh;q=0.9",
 				"content-type": f"multipart/form-data; boundary=----WebKitFormBoundary{''.join(character[-16:])}",
 				"origin": "https://seller.shopee.cn",
-				"sc-fe-session": f"{uuid.uuid4()}",
+				"sc-fe-session": f"{uuid4()}",
 				"sc-fe-ver": "56878",
 				"sec-ch-ua": "\".Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\"",
 				"sec-ch-ua-mobile": "?0",
@@ -274,7 +274,7 @@ if __name__=="__main__":
 		print(f"开始上架第 {i-1} 个产品")
 		# 随机数的暂停时间
 		print(f"随机暂停时间：{data['暂停时间']}秒")
-		time.sleep(data['暂停时间'])
+		sleep(data['暂停时间'])
 		# 定义数组，存放图片 ID
 		images = []
 		for image in get_image_name(data['文件夹名']):
