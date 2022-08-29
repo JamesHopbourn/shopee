@@ -20,6 +20,7 @@ data = {
 print({v: k for k, v in data.items()})
 
 print(data.get('james'))
+print(data.get('jamesss', 'default value'))
 
 Names = ['Anne', 'Amy', 'Bob', 'David', 'Carrie', 'Barbara', 'Zach']
 print(list(filter(lambda x: x.startswith('B'),Names)))
