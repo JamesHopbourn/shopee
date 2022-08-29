@@ -177,7 +177,7 @@ def generate_request_data(size_options, model_list, images):
 
 # 上传商品图片
 def get_image_hash(image_path):
-	sets, character = [],[string.ascii_lowercase, string.ascii_uppercase, string.digits]
+	sets, character = [], [string.ascii_lowercase, string.ascii_uppercase, string.digits]
 	[sets.append(i[j]) for i in character for j in range(len(i))]
 	[character.append(choice(sets)) for i in range(16)]
 	try:
