@@ -1,5 +1,6 @@
 *.exe
 *.txt
+*.zip
 *.xls
 *.xlsx
 [0-9]*/
