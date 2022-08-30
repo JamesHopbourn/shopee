@@ -64,6 +64,7 @@ def catagory_mapper():
 		"女包托特包": [100016, 100093], #通过222222
 		"女包手提包": [100016, 100094], #通过222222
 		"女包斜挎包单肩包": [100016, 100095], #通过222222
+		"女包钱包其他": [100016, 100096, 100343], #通过
 		"女包钱包卡包": [100016, 100096, 100338], #通过
 		"女包钱包零钱包": [100016, 100096, 100339], #通过
 		"女包钱包手机钥匙包": [100016, 100096, 100340], #通过
@@ -77,16 +78,22 @@ def catagory_mapper():
 	}[data['商品分类']]
 
 # 鞋子品牌映射函数
-def brand_id_mapper():
-	return {
-		"air jordan": 1800399,
-		"adidas": 1800379,
-		"nobrand": 0,
-		"nb": 1802060,
-		"puma": 2240153,
-		"vans": 1802807,
-		"nike": 2563603
-	}[data['品牌'].lower()]
+def get_brandID_list():
+	brand = {}
+	cousor = [[101298, 0],[100089, 0]]
+	for i in range(len(cousor)):
+		flag = True
+		while(flag):
+			brand_list = requests.get(f"https://seller.shopee.cn/api/v3/mtsku/get_mtsku_brand_list?brand_status=1&category_ids={cousor[i][0]}&cursor={cousor[i][1]}&limit=100",
+				cookies=data_cookie,
+				verify=False
+			)
+			data = json.loads(brand_list.text)['data']['list'][0]
+			flag = data.get('page_info')['has_next']
+			cousor[i][1] = data.get('page_info')['cursor']
+			for item in data['brand_list']:
+				brand.update({item['name'].lower(): item['brand_id']})
+	return brand
 			
 # 根据鞋码数量重复生成数据
 def generate_repeat_data(size_options):
@@ -130,7 +137,7 @@ def generate_request_data(size_options, model_list, images):
 		"ds_cat_rcmd_id": "",
 		"description_type": "normal",
 		"weight": f"{data['包装重量']}",
-		"brand_id": brand_id_mapper(),
+		"brand_id": brand[data['品牌'].lower()],
 		"days_to_ship": data['发货时间'],
 		"size_chart": "",
 		"attributes": [],
@@ -144,7 +151,8 @@ def generate_request_data(size_options, model_list, images):
 		['尺寸', 100218, {"微型":1793,"其他":1804}],
 		['性别', 100022, {"女":652,"男":662,"男女皆宜":674}],
 		['场合', 100155, {"办公":1527,"休闲":1387,"正式":1433,"其他":1397,"户外活动":1515,"运动":1502}],
-		['材质', 100134, {"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}],
+		['材质', 100134, {"棉":1149,"帆布":1129,"皮革":1221,"尼龙":1165,"其他":1257,"PVC":1178,"合成皮":1280,"纺织":1285}],
+		['图案', 100162, {"迷彩":1508,"点缀":1518,"刺绣":1546,"花":1447,"图案":1561,"标志":1573,"单色":1463,"波点":1474,"印花":1486,"方格/格子":1439,"条纹":1495}],
 		['包包款式', 100216, {"波士顿包":1797,"水桶包":1805,"相机包":1816,"链条包":1826,"半月包":1835,"饺子包":1846,"邮差包":1855,"其他":1867,"马鞍包":1878,"小方包":1888}]
 	]
 	attr = [a for a, _, _ in attributes]
@@ -250,7 +258,9 @@ if __name__=="__main__":
 	# 解析 cookies
 	data_cookie = parse_cookies()[0]
 	header_cookies = parse_cookies()[1]
+	# 初始化信息
 	shopID = get_shopID()
+	brand = get_brandID_list()
 	# 开始处理数据
 	network_status = 0
 	data, result = {}, {}
@@ -273,7 +283,8 @@ if __name__=="__main__":
 			if network_status == 1: continue
 		print(f"上传图片数量：{len(images)}")
 		# 获取第二个SKU信息
-		second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
+		# second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
+		second_format = 'SKUcolor'
 		# 从 Excel 读取性别信息，返回 size_options 适配的尺码信息
 		size_options = list(data['SKUsize'].split(','))
 		# 根据尺码信息的数量构造库存价格对应信息
