@@ -161,7 +161,8 @@ def generate_request_data(size_options, model_list, images):
 				"attribute_id": attributes[attr.index(item[0])][1],
 				"attribute_value_id": attributes[attr.index(item[0])][2][data[item[0]]]
 			})
-	if(data.get(second_format)): request_data['tier_variation'].append({
+	if(data.get(second_format)):
+		request_data['tier_variation'].append({
 			"images": images[:len(data[second_format].split(','))],
 			"name": f"{second_format.replace('SKU', '')}",
 			"options": data[second_format].split(',')
