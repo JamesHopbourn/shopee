@@ -16,4 +16,6 @@ scp james@james.local:$HOME/code/shopee/*.xlsx "%USERPROFILE%/Desktop"
 
 scp james@james.local:$HOME/code/shopee/cookies.txt "%USERPROFILE%/Desktop"
 
+scp "%USERPROFILE%/Desktop/捕获.png" james@james.local:$HOME/code/shopee/screenshot.png
+
 exit
