@@ -265,12 +265,12 @@ if __name__=="__main__":
     # 开始处理数据
     network_status = 0
     data, result = {}, {}
-    wb = openpyxl.load_workbook(path)
-    ws = wb.active
-    for i in range(2, ws.max_row+1):
-        for j in range(1, ws.max_column+1):
-            head = ws.cell(row=1, column=j).value
-            item = ws.cell(row=i, column=j).value
+    workbook = openpyxl.load_workbook(path)
+    worksheet = workbook.active
+    for i in range(2, worksheet.max_row+1):
+        for j in range(1, worksheet.max_column+1):
+            head = worksheet.cell(row=1, column=j).value
+            item = worksheet.cell(row=i, column=j).value
             data[head] = item
         if(data['上架情况'] == '完成' or data['暂停时间'] == None): continue
         print(f"开始上架第 {i-1} 个产品")
@@ -287,12 +287,12 @@ if __name__=="__main__":
         model_list = generate_repeat_data(size_options)
         request_data = generate_request_data(size_options, model_list, images)
         launch_status_code = send_request(request_data)
-        if network_status == 1: continue
+        if (network_status == 1): continue
         if (launch_status_code == 0): result.update({i: '完成'})
 index = list(data.keys()).index('上架情况')
 for key in result:
-    ws.cell(row=key, column=index+1, value=result[key])
-wb.save(path)
+    worksheet.cell(row=key, column=index+1, value=result[key])
+workbook.save(path)
 print("自动上架完成")
 print("回车退出程序")
 input()
