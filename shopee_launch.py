@@ -271,7 +271,7 @@ if __name__=="__main__":
 			head = ws.cell(row=1, column=j).value
 			item = ws.cell(row=i, column=j).value
 			data[head] = item
-		if(data['上架情况'] == '完成'): continue
+		if(data['上架情况'] == '完成' or data['暂停时间'] == None): continue
 		print(f"开始上架第 {i-1} 个产品")
 		# 随机数的暂停时间
 		print(f"随机暂停时间：{data['暂停时间']}秒")
