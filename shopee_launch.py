@@ -6,6 +6,7 @@ import string
 import requests
 import openpyxl
 from sys import exit
+from sys import argv
 from urllib3 import *
 from time import sleep
 from uuid import uuid4
@@ -253,7 +254,7 @@ def send_request(post_data):
 if __name__=="__main__":
     print('虾皮自动上架软件 ver:2.0.0 2022-08-22\n软件问题反馈可联系微信：JamesHopbourn\n')
     # 定义两个 path
-    path = input('拖入 Excel 文件：')
+    path = argv[1] if(len(argv) == 2) else input('拖入 Excel 文件：')
     dir_path = os.path.dirname(path)
     # 解析 cookies
     data_cookie = parse_cookies()[0]
@@ -273,31 +274,21 @@ if __name__=="__main__":
             data[head] = item
         if(data['上架情况'] == '完成' or data['暂停时间'] == None): continue
         print(f"开始上架第 {i-1} 个产品")
-        # 随机数的暂停时间
         print(f"随机暂停时间：{data['暂停时间']}秒")
         sleep(data['暂停时间'])
-        # 定义数组，存放图片 ID
         images = []
         for image in get_image_name(data['文件夹名']):
             images.append(get_image_hash(image))
             if network_status == 1: continue
         print(f"上传图片数量：{len(images)}")
-        # 获取第二个SKU信息
         # second_format = list(filter(lambda k: k.startswith('SKU'), data))[0]
         second_format = 'SKUcolor'
-        # 从 Excel 读取性别信息，返回 size_options 适配的尺码信息
         size_options = list(data['SKUsize'].split(','))
-        # 根据尺码信息的数量构造库存价格对应信息
         model_list = generate_repeat_data(size_options)
-        # 根据上面的两个参数构造整体的数据包
         request_data = generate_request_data(size_options, model_list, images)
-        # 发送数据包上架商品返回状态码
         launch_status_code = send_request(request_data)
-        # 判断网络状态
         if network_status == 1: continue
-        # 根据状态码的情况决定是否追加
         if (launch_status_code == 0): result.update({i: '完成'})
-# 修改 Excel 产品上架情况单元格值
 index = list(data.keys()).index('上架情况')
 for key in result:
     ws.cell(row=key, column=index+1, value=result[key])
