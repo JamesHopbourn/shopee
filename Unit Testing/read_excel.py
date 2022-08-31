@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
-import xlrd
-table = xlrd.open_workbook('/Users/james/Code/shopee/商品.xls')
-sheet = table.sheet_by_name(table.sheet_names()[0])
+import openpyxl
+from sys import argv
 
-for i in range(1, sheet.nrows):
-	value = sheet[i][9].value
-	print(type(value))
-	print(value)
+data = {}
+path = argv[1] if(len(argv) == 2) else input('拖入 Excel 文件：')
+workbook = openpyxl.load_workbook(path)
+worksheet = workbook.active
+for i in range(2, worksheet.max_row+1):
+	for j in range(1, worksheet.max_column+1):
+		head = worksheet.cell(row=1, column=j).value
+		item = worksheet.cell(row=i, column=j).value
+		data[head] = item
+	print(data)
