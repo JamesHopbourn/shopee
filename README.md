@@ -1,5 +1,11 @@
+### hosts
 ```
 C:\Windows\System32\drivers\etc
+```
+
+### zip
+```
+zip -r 2.0.1.zip item.xlsx shopee\ 2.0.1.exe 82202 -x 82202/.DS_Store
 ```
 
 ### 生成图片
