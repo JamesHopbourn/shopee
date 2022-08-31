@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 
-#!/usr/bin/env python3
-
 import os
 import json 
 
-with open('cookies.txt', 'r') as content:
-	cookies = json.loads(content.read())
+# cookies 文件解析
+def parse_cookies():
+	data_cookie, header_cookies = {}, ""
+	cookies = json.loads(open('../cookies.txt').read())
+	for i in range(len(cookies)):
+		data = json.loads(json.dumps(cookies[i]))
+		data_cookie.update({data['name']: data['value']})
+		header_cookies += f"{data['name']}={data['value']}; "
+		header_cookies = header_cookies.replace('"', '\\"')
+	return data_cookie, header_cookies
 
-
-data_cookie = {}
-header_cookies = ""
-for i in range(len(cookies)):
-	data = json.loads(json.dumps(cookies[i]))
-	temp = {data['name']: data['value']}
-	data_cookie.update(temp)
-	header_cookies += f"{data['name']}={data['value']}; "
-print(data_cookie)
-print(header_cookies.replace('"', '\\"'))
+print(parse_cookies()[0])
+print(parse_cookies()[1])
